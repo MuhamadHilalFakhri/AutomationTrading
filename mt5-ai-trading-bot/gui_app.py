@@ -922,12 +922,12 @@ class BotGUI:
         if kind == 'int':
             try:
                 return int(float(s))
-            except ValueError:
+            except (ValueError, TypeError):
                 return None
         if kind == 'float':
             try:
                 return float(s)
-            except ValueError:
+            except (ValueError, TypeError):
                 return None
         return s
 

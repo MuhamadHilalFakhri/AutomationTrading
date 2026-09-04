@@ -307,7 +307,7 @@ class TelegramNotifier:
             return False
 
         is_menu = cmd in ('start', 'menu', 'bantuan')
-        text, inline = self.build_reply(cmd, account, positions, pending, signals)
+        text, inline = self.build_reply(cmd, account, positions, pending, signals, daily)
         if text:
             rk = self._reply_keyboard() if is_menu else None
             self.send(text, reply_markup=inline or rk)
