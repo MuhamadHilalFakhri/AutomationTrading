@@ -930,6 +930,14 @@ class BotGUI:
                 return None
         return s
 
+    def _live_value(self, keys):
+        """Nilai field GUI saat ini (yang baru diketik user), fallback ke self.cfg.
+        Dipakai tombol Test supaya membaca isi field, bukan config tersimpan."""
+        for obj, k, var, _kind in getattr(self, '_fields', []):
+            if k == keys:
+                return str(var.get())
+        return str(self._deep_get(self.cfg, keys, '') or '')
+
     # ── collect / save ─────────────────────────────────────────────
     def _collect_config(self) -> dict:
         cfg = _load_cfg()
@@ -1120,10 +1128,10 @@ class BotGUI:
     # ── tests ──────────────────────────────────────────────────────
     def _test_router(self):
         def run():
-            base = str(self._deep_get(self.cfg, ['provider', 'base_url'], '')).rstrip('/')
+            base = str(self._live_value(['provider', 'base_url'])).rstrip('/')
             # ── auto-detect API key env var ─────────────────────────────
-            current_env = str(self._deep_get(self.cfg, ['provider', 'api_key_env'], '') or '')
-            key = str(self._deep_get(self.cfg, ['provider', 'api_key'], '') or '')
+            current_env = str(self._live_value(['provider', 'api_key_env']))
+            key = str(self._live_value(['provider', 'api_key']))
             # kalau key kosong → cari dari env var yang dikenal (biar otomatis)
             if not key:
                 candidates = [
@@ -1154,14 +1162,14 @@ class BotGUI:
                     else:
                         self._log(f'🔑 Memakai env var: {found}\n')
                 else:
-                    self._log('ℹ API key kosong & tidak ada env var terdeteksi — '
-                              'request tanpa token (mungkin 401).\n')
+                    self._log('ℹ API key kosong di field & tidak ada env var terdeteksi — '
+                              'isi API key di field lalu Test lagi.\n')
             try:
                 import urllib.request
                 req = urllib.request.Request(
                     f'{base}/models',
                     headers={'Authorization': f'Bearer {key}'} if key else {})
-                with urllib.request.urlopen(req, timeout=6) as r:
+                with urllib.request.urlopen(req, timeout=15) as r:
                     data = json.loads(r.read().decode())
                 all_ids = [str(m.get('id')) for m in data.get('data', []) if m.get('id')]
                 ids = all_ids[:30]
