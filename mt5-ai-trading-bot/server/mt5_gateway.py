@@ -139,8 +139,33 @@ class MT5Gateway:
     # -------------------------------------------------------------
     def detect_terminal_path(self) -> str:
         """Cari terminal64.exe secara otomatis dari lokasi umum (Windows)."""
-        candidates = []
         import glob
+        # 1) path yang paling umum — cek langsung (cepat, tanpa scan recursive)
+        quick = [
+            'C:/Program Files/MetaTrader 5/terminal64.exe',
+            'C:/Program Files/Vantage Markets/MetaTrader 5/terminal64.exe',
+            'C:/Program Files (x86)/MetaTrader 5/terminal64.exe',
+            os.environ.get('LOCALAPPDATA', '') + '/MetaTrader 5/terminal64.exe',
+            'D:/Program Files/MetaTrader 5/terminal64.exe',
+            'C:/MetaTrader 5/terminal64.exe',
+            'D:/MetaTrader 5/terminal64.exe',
+        ]
+        for p in quick:
+            if p and os.path.isfile(p):
+                return p.replace('\\', '/')
+        # 2) scan dangkal (non-recursive) di folder umum — cepat
+        for base in ('C:/Program Files', 'C:/Program Files (x86)',
+                     os.environ.get('LOCALAPPDATA', '')):
+            if not base:
+                continue
+            pat = os.path.join(base, '*', 'terminal64.exe')
+            try:
+                for p in glob.glob(pat):
+                    if os.path.isfile(p):
+                        return p.replace('\\', '/')
+            except Exception:
+                pass
+        # 3) fallback: scan recursive penuh (lambat) — hanya jika 1 & 2 gagal
         for base in ('C:/Program Files', 'C:/Program Files (x86)',
                      os.environ.get('LOCALAPPDATA', ''),
                      os.environ.get('APPDATA', ''), 'D:/', 'E:/'):
@@ -148,14 +173,13 @@ class MT5Gateway:
                 continue
             pat = os.path.join(base, '**', 'terminal64.exe')
             try:
-                candidates += glob.glob(pat, recursive=True)
+                candidates = glob.glob(pat, recursive=True)
             except Exception:
-                pass
-        # prefer path yang mengandung MetaTrader
-        mt = [p for p in candidates if 'metatrader' in p.lower()]
-        for p in (mt or candidates):
-            if os.path.isfile(p):
-                return p.replace('\\', '/')
+                continue
+            mt = [p for p in candidates if 'metatrader' in p.lower()]
+            for p in (mt or candidates):
+                if os.path.isfile(p):
+                    return p.replace('\\', '/')
         return ''
 
     # -------------------------------------------------------------

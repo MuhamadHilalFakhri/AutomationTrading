@@ -510,6 +510,8 @@ class BotGUI:
 
     def _auto_detect(self):
         """Cari terminal64.exe + nama symbol asli broker, isi otomatis ke config."""
+        # feedback segera — jangan biarkan user mengira tombol mati
+        self._log('🔍 Deteksi otomatis dimulai — mencari MT5… (beberapa detik)\n')
         class _DictCfg:
             """Shim: dict GUI -> objek cfg ala Config (get dotted-path)."""
             def __init__(self, d): self._d = d
@@ -558,8 +560,14 @@ class BotGUI:
                     extra = ', '.join(syms)
                     self.root.after(0, lambda: self._extra_sym_var.set(extra))
                     self._log(f'🔍 {len(syms)} pair broker terdeteksi:\n   {extra}\n')
-                    self._log('   → isi field "Pair tambahan" di tab Symbol & TF. '
-                              'Simpan agar dipakai bot.\n')
+                    self._log('   → dicentangkan otomatis di tab "Symbol & TF" '
+                              '(pair tambahan). Simpan agar dipakai bot.\n')
+                    # centang otomatis pair yang terdeteksi di bagian universe
+                    for s, var in list(self._sym_vars.items()):
+                        if s in syms:
+                            self.root.after(0, lambda v=var: v.set(True))
+                        else:
+                            self.root.after(0, lambda v=var: v.set(False))
                 else:
                     self._log('⚠ Tidak ada pair terdeteksi (cek koneksi MT5 & '
                               'visibility symbol).\n')
