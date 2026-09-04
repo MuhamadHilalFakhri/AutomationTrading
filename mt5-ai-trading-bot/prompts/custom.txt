@@ -1,0 +1,12 @@
+Gunakan deep reasoning + probabilitas.
+Prioritas: AKURASI > FREKUENSI.
+Tidak semua kondisi layak ditrade.
+gunakan data yg diberikan sesuai kondisi market
+
+Beri keputusan utk scalping
+lotnya 0.01 sehingga dapat antara $10 - $20,
+jangan maksa take profit sesuai pertimbangan yang matang.
+minimal RR 1:2.
+sekarang market london
+
+semua keputusan pakai pending order (limit/stop) untuk best entry

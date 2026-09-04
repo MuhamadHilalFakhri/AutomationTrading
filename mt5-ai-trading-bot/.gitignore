@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Kredensial & konfigurasi lokal — JANGAN di-push (berisi api_key/password/akun MT5)
+config.yaml
+config.yaml.bak
+*.secret
+.env
+
+# State runtime
+.active_pairs.json
+logs/
+reports/
+_scratch/
+
+# Build artifacts
+build/
+"AI Trading Bot.exe"
+*.exe
+build_log*.txt
+_selftest.txt

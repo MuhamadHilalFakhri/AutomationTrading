@@ -1,0 +1,40 @@
+# ===== Repository root =====
+# Semua file build & runtime — jangan pernah di-push
+
+# --- Build artifacts (besar) ---
+*.exe
+*.pyc
+__pycache__/
+build/
+dist/
+*.tsbuildinfo
+
+# --- Dependencies (diregenerasi via pnpm/npm) ---
+node_modules/
+.pnpm-store/
+.next/
+out/
+
+# --- Runtime state & secrets (dibuat otomatis saat jalan) ---
+logs/
+reports/
+*.db
+*.sqlite
+*.sqlite3
+.data/
+data/
+
+# --- Environment & credentials ---
+.env
+.env.*
+!.env.example
+config.yaml
+config.yaml.bak
+*.secret
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
