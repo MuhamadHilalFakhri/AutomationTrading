@@ -86,7 +86,14 @@ class TelegramNotifier:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 return json.loads(resp.read().decode())
         except Exception as e:
-            print(f"[tg] {method} gagal: {e}")
+            # kasih detail biar polling error (409/webhook/network) kelihatan
+            detail = ''
+            if hasattr(e, 'read'):
+                try:
+                    detail = e.read().decode('utf-8', 'replace')[:300]
+                except Exception:
+                    detail = ''
+            print(f"[tg] ⚠️ {method} gagal: {e} {detail}")
             return {}
 
     def send(self, text: str, reply_markup: dict = None) -> bool:
@@ -178,7 +185,10 @@ class TelegramNotifier:
                 pass
             if 'message' in upd:
                 msg = upd['message']
-                if str(msg.get('chat', {}).get('id')) != str(self.chat_id):
+                chat_id = str(msg.get('chat', {}).get('id') or '')
+                if str(self.chat_id) and chat_id != str(self.chat_id):
+                    print(f"[tg] ⚠️ pesan dari chat {chat_id} diabaikan "
+                          f"(harus {self.chat_id})")
                     continue
                 text = (msg.get('text') or '').strip()
                 if not text:
@@ -187,9 +197,15 @@ class TelegramNotifier:
                 cmd = self._normalize(text)
                 if cmd:
                     cmds.append(cmd)
+                    print(f"[tg] 📥 command: '{cmd}' (dari chat {chat_id})")
+                else:
+                    print(f"[tg] ⚠️ teks tidak dikenal (diabaikan): '{text}'")
             elif 'callback_query' in upd:
                 cb = upd['callback_query']
-                if str(cb.get('message', {}).get('chat', {}).get('id')) != str(self.chat_id):
+                cb_chat = str(cb.get('message', {}).get('chat', {}).get('id') or '')
+                if str(self.chat_id) and cb_chat != str(self.chat_id):
+                    print(f"[tg] ⚠️ callback dari chat {cb_chat} diabaikan "
+                          f"(harus {self.chat_id})")
                     continue
                 callbacks.append({'id': cb.get('id'), 'data': cb.get('data', '')})
         return {'cmds': cmds, 'callbacks': callbacks}

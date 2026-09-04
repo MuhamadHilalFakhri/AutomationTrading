@@ -107,22 +107,34 @@ class BotEngine:
                     self.notifier.answer_callback(cb.get('id', ''))
                 except Exception:
                     pass
-            return
+            # jangan buang command teks: proses dengan data kosong agar
+            # user tetap dapat balasan (bukan diam total)
+            acct, poss, pends, daily = {}, [], [], {}
         for cb in callbacks:
             try:
                 self.notifier.answer_callback(cb.get('id', ''))
             except Exception:
                 pass
             cmd = cb.get('data', '')
-            stop_requested = self.notifier.process_command(
-                cmd, acct, poss, pends, self._signal_history, daily)
+            try:
+                stop_requested = self.notifier.process_command(
+                    cmd, acct, poss, pends, self._signal_history, daily)
+            except Exception as e:
+                print(f"[tg-poll] callback error '{cmd}': {e}")
+                traceback.print_exc()
+                stop_requested = False
             if stop_requested:
                 self.notifier.send("🛑 Bot dihentikan sesuai perintah.")
                 self.stop()
                 return
         for cmd in cmds:
-            stop_requested = self.notifier.process_command(
-                cmd, acct, poss, pends, self._signal_history, daily)
+            try:
+                stop_requested = self.notifier.process_command(
+                    cmd, acct, poss, pends, self._signal_history, daily)
+            except Exception as e:
+                print(f"[tg-poll] command error '{cmd}': {e}")
+                traceback.print_exc()
+                stop_requested = False
             if stop_requested:
                 self.notifier.send("🛑 Bot dihentikan sesuai perintah.")
                 self.stop()
@@ -526,7 +538,7 @@ class BotEngine:
         return True, "ok"
 
     # -------------------------------------------------------------
-    def _maybe_send_chart(self, symbol: str, decision: dict):
+    def _maybe_send_chart(self, symbol: str, decision: dict, png_bytes: bytes = None):
         """Kirim chart PNG ke Telegram bila fitur aktif & symbol termasuk daftar."""
         if not self.notifier or not self.notifier.enabled:
             return
@@ -541,6 +553,23 @@ class BotEngine:
         # hanya kirim jika AI kasih decision (bukan HOLD)
         if decision.get('decision') == 'HOLD':
             return
+        # caption ringkas
+        dec = decision.get('decision', '?')
+        conf = decision.get('confidence', 0)
+        strat = decision.get('strategy', '')
+        reason = (decision.get('reason') or '')[:100]
+        caption = (f"📊 <b>{symbol}</b>\n"
+                   f"Decision: <b>{dec}</b> (conf {conf:.0%})\n"
+                   f"Strategy: {strat}\n"
+                   f"Reason: {reason}")
+        # kalau AI sudah render chart-nya, kirim langsung (hemat waktu)
+        if png_bytes:
+            try:
+                self.notifier.send_photo(png_bytes, caption)
+                return
+            except Exception as e:
+                print(f"[engine] send_chart (png AI) error {symbol}: {e}")
+                # fallback: render ulang di bawah
         # render chart
         try:
             tf = self.cfg.chart_timeframe()
@@ -551,15 +580,6 @@ class BotEngine:
             png = self.chart_renderer.render(symbol, tf, d)
             if not png:
                 return
-            # caption ringkas
-            dec = decision.get('decision', '?')
-            conf = decision.get('confidence', 0)
-            strat = decision.get('strategy', '')
-            reason = (decision.get('reason') or '')[:100]
-            caption = (f"📊 <b>{symbol}</b> {tf}\n"
-                       f"Decision: <b>{dec}</b> (conf {conf:.0%})\n"
-                       f"Strategy: {strat}\n"
-                       f"Reason: {reason}")
             self.notifier.send_photo(png, caption)
         except Exception as e:
             print(f"[engine] send_chart error {symbol}: {e}")
