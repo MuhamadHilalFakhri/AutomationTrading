@@ -18,6 +18,7 @@ import sys
 import threading
 import time
 import traceback
+import urllib.parse
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 
@@ -1264,11 +1265,33 @@ class BotGUI:
                 with urllib.request.urlopen(
                         f'https://api.telegram.org/bot{tok}/getMe', timeout=8) as r:
                     data = json.loads(r.read().decode())
-                if data.get('ok'):
-                    b = data['result']
-                    self._log(f"📱 Telegram OK — bot @{b.get('username')}\n")
-                else:
+                if not data.get('ok'):
                     self._log(f'❌ Telegram: {data}\n')
+                    return
+                b = data['result']
+                self._log(f"📱 Token OK — bot @{b.get('username')}.\n")
+                # ── uji kirim end-to-end (bukan cuma token) ──────────────
+                chat = (self._live_value(['telegram', 'chat_id'])
+                        or self._live_value(['chat_id'])
+                        or str(self._deep_get(self.cfg, ['telegram', 'chat_id'], '') or ''))
+                if not chat:
+                    self._log('❌ Chat ID kosong — isi Chat ID (ID Telegram kamu) di '
+                              'tab Telegram, lalu Test lagi.\n')
+                    return
+                body = ('chat_id={}&text={}'.format(
+                    urllib.parse.quote(str(chat)),
+                    urllib.parse.quote('✅ Test dari AI Trading Bot — koneksi Telegram OK!')))
+                req = urllib.request.Request(
+                    f'https://api.telegram.org/bot{tok}/sendMessage',
+                    data=body.encode(), method='POST')
+                with urllib.request.urlopen(req, timeout=10) as r2:
+                    out = json.loads(r2.read().decode())
+                if out.get('ok'):
+                    self._log(f'✅ Pesan uji TERKIRIM ke chat {chat} — cek Telegram-mu!\n')
+                else:
+                    desc = out.get('description', '?')
+                    self._log(f'❌ Kirim gagal (chat {chat}): {desc}\n')
+                    self._log('   Chat ID salah/kosong, atau kamu belum pernah /start ke bot ini.\n')
             except Exception as e:
                 self._log(f'❌ Telegram gagal: {e}\n')
         threading.Thread(target=run, daemon=True).start()
