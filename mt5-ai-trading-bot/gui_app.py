@@ -849,6 +849,10 @@ class BotGUI:
         cmb = ttk.Combobox(parent, textvariable=var, values=values,
                            state='readonly' if not editable else 'normal', width=27)
         cmb.grid(row=row, column=1, sticky='w', padx=8, pady=2)
+        # simpan referensi widget (untuk update runtime, mis. daftar model hasil deteksi)
+        if not hasattr(self, '_combo_refs'):
+            self._combo_refs = {}
+        self._combo_refs[tuple(keys)] = cmb
         self._fields.append((obj, keys, var, 'str'))
 
     def _pair_check(self, parent, label, obj, keys, row):
@@ -1117,9 +1121,41 @@ class BotGUI:
     def _test_router(self):
         def run():
             base = str(self._deep_get(self.cfg, ['provider', 'base_url'], '')).rstrip('/')
+            # ── auto-detect API key env var ─────────────────────────────
+            current_env = str(self._deep_get(self.cfg, ['provider', 'api_key_env'], '') or '')
             key = str(self._deep_get(self.cfg, ['provider', 'api_key'], '') or '')
-            env_name = str(self._deep_get(self.cfg, ['provider', 'api_key_env'], '') or '')
-            key = key or os.environ.get(env_name, '')
+            # kalau key kosong → cari dari env var yang dikenal (biar otomatis)
+            if not key:
+                candidates = [
+                    current_env,
+                    'HERMES_CUSTOM_LOCALHOST_20128_API_KEY',
+                    '9ROUTER_API_KEY', 'OPENROUTER_API_KEY', 'OPENAI_API_KEY',
+                    'ANTHROPIC_API_KEY', 'DEEPSEEK_API_KEY',
+                    'MT5AI_API_KEY', 'HERMES_9ROUTER_API_KEY',
+                ]
+                found = ''
+                for name in candidates:
+                    if not name:
+                        continue
+                    v = os.environ.get(name, '')
+                    if v.strip():
+                        found = name
+                        break
+                if found:
+                    key = os.environ.get(found, '')
+                    if found != current_env:
+                        self._deep_set(self.cfg, ['provider', 'api_key_env'], found)
+                        # update field GUI "API Key Env Var" biar kelihatan
+                        for obj, keys, var, _k in self._fields:
+                            if keys == ['provider', 'api_key_env']:
+                                self.root.after(0, lambda v=var, s=found: v.set(s))
+                                break
+                        self._log(f'🔑 Auto-detect env var: {found} (dipakai otomatis)\n')
+                    else:
+                        self._log(f'🔑 Memakai env var: {found}\n')
+                else:
+                    self._log('ℹ API key kosong & tidak ada env var terdeteksi — '
+                              'request tanpa token (mungkin 401).\n')
             try:
                 import urllib.request
                 req = urllib.request.Request(
@@ -1127,9 +1163,28 @@ class BotGUI:
                     headers={'Authorization': f'Bearer {key}'} if key else {})
                 with urllib.request.urlopen(req, timeout=6) as r:
                     data = json.loads(r.read().decode())
-                ids = [m.get('id') for m in data.get('data', [])][:8]
-                self._log(f'🔌 9Router OK ({base}) — {len(data.get("data", []))} model. '
-                          f'Contoh: {", ".join(map(str, ids))}\n')
+                all_ids = [str(m.get('id')) for m in data.get('data', []) if m.get('id')]
+                ids = all_ids[:30]
+                self._log(f'🔌 9Router OK ({base}) — {len(all_ids)} model tersedia.\n')
+                if ids:
+                    shown = ', '.join(ids[:8]) + ('…' if len(ids) > 8 else '')
+                    self._log(f'   Model: {shown}\n')
+                    # isi otomatis dropdown "Model AI" (pertahankan COMBO/h1 jika ada)
+                    merged = list(ids)
+                    for keep in ('COMBO', 'h1'):
+                        if keep not in merged:
+                            merged.insert(0, keep)
+                    merged = merged[:40]
+
+                    def _upd(m=merged, first=ids[0]):
+                        cmb = self._combo_refs.get(('provider', 'model'))
+                        if cmb is not None:
+                            cmb['values'] = m
+                            if cmb.get() not in m:
+                                cmb.set(first)
+                    self.root.after(0, _upd)
+                else:
+                    self._log('   (response kosong — tidak ada model terdeteksi)\n')
             except Exception as e:
                 self._log(f'❌ 9Router gagal: {e}\n')
         threading.Thread(target=run, daemon=True).start()
