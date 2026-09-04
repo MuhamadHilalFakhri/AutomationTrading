@@ -932,18 +932,44 @@ class BotGUI:
 
     def _live_value(self, keys):
         """Nilai field GUI saat ini (yang baru diketik user), fallback ke self.cfg.
-        Dipakai tombol Test supaya membaca isi field, bukan config tersimpan."""
+        Dipakai tombol Test supaya membaca isi field, bukan config tersimpan.
+        Kunci field bisa ['provider','x'] (absolute) atau ['x'] (relatif ke obj)."""
+        want_rel = keys[1:] if len(keys) > 1 else keys
         for obj, k, var, _kind in getattr(self, '_fields', []):
-            if k == keys:
+            if k == keys or k == want_rel:
                 return str(var.get())
         return str(self._deep_get(self.cfg, keys, '') or '')
 
     # ── collect / save ─────────────────────────────────────────────
     def _collect_config(self) -> dict:
         cfg = _load_cfg()
+        # peta kunci relatif -> parent absolut di config (biar nilai field
+        # tersimpan di tempat yang benar, bukan nyasar ke root)
+        REL_PARENT = {
+            'base_url': ['provider'], 'api_key': ['provider'],
+            'api_key_env': ['provider'], 'model': ['provider'],
+            'temperature': ['provider'], 'timeout_sec': ['provider'],
+            'max_tokens': ['provider'],
+            'enabled': ['provider', 'vision'], 'chart_candles': ['provider', 'vision'],
+            'chart_timeframe': ['provider', 'vision'], 'chart_width': ['provider', 'vision'],
+            'chart_height': ['provider', 'vision'], 'indicators_overlay': ['provider', 'vision'],
+            'name': ['strategy'], 'timeframes': ['strategy'], 'default_timeframes': ['strategy'],
+            'custom_prompt_file': ['strategy'], 'data_mode': ['strategy'],
+            'compact_tail_last_n': ['strategy'], 'compact_tail_tf': ['strategy'],
+            'terminal_path': ['mt5'], 'max_symbols': ['mt5'],
+            'host': ['server'], 'port': ['server'],
+            'token_env': ['telegram'], 'chat_id_env': ['telegram'],
+            'chat_id': ['telegram'],
+            'loop_interval_sec': ['app'],
+        }
         for obj, keys, var, kind in self._fields:
             v = self._coerce(var.get(), kind)
-            if v is not None:
+            if v is None:
+                continue
+            if len(keys) == 1 and keys[0] in REL_PARENT and obj is not cfg:
+                # field dari obj sub-dict (provider/strategy/dll) → tulis ke parent
+                self._deep_set(cfg, REL_PARENT[keys[0]] + keys, v)
+            else:
                 self._deep_set(cfg, keys, v)
         # telegram token dari field khusus
         tok = self._tok_var.get().strip()
@@ -1155,7 +1181,7 @@ class BotGUI:
                         self._deep_set(self.cfg, ['provider', 'api_key_env'], found)
                         # update field GUI "API Key Env Var" biar kelihatan
                         for obj, keys, var, _k in self._fields:
-                            if keys == ['provider', 'api_key_env']:
+                            if keys == ['api_key_env']:
                                 self.root.after(0, lambda v=var, s=found: v.set(s))
                                 break
                         self._log(f'🔑 Auto-detect env var: {found} (dipakai otomatis)\n')
@@ -1185,7 +1211,10 @@ class BotGUI:
                     merged = merged[:40]
 
                     def _upd(m=merged, first=ids[0]):
-                        cmb = self._combo_refs.get(('provider', 'model'))
+                        for kk in (('provider', 'model'), ('model',)):
+                            cmb = self._combo_refs.get(kk)
+                            if cmb is not None:
+                                break
                         if cmb is not None:
                             cmb['values'] = m
                             if cmb.get() not in m:
