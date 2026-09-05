@@ -9,6 +9,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
   CartesianGrid, Cell, PieChart, Pie, Legend,
 } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StrategyStat {
   strategy: string;
@@ -21,6 +22,11 @@ interface StrategyStat {
   avgWin: number;
   avgLoss: number;
 }
+
+const CHART_PROFIT_FILL = "rgba(16, 185, 129, 0.62)";
+const CHART_PROFIT_STROKE = "#6ee7b7";
+const CHART_LOSS_FILL = "rgba(244, 63, 94, 0.62)";
+const CHART_LOSS_STROKE = "#fda4af";
 
 export default function AnalitikPage() {
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -35,7 +41,14 @@ export default function AnalitikPage() {
     return () => { active = false; };
   }, []);
 
-  if (loading) return <div className="p-10 text-center text-sm text-zinc-600">Memuat...</div>;
+  if (loading) return (
+    <div>
+      <PageHeader title="Analitik" subtitle="Performa strategi, symbol, dan metrik lanjutan" />
+      <div className="grid gap-3 md:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl bg-slate-800" />)}
+      </div>
+    </div>
+  );
 
   const closed = trades.filter((t) => t.status === "closed" && t.profit != null);
 
@@ -43,7 +56,7 @@ export default function AnalitikPage() {
     return (
       <div>
         <PageHeader title="Analitik" subtitle="Performa strategi & statistik lanjutan" />
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-10 text-center text-sm text-zinc-500">
+        <div className="glass-panel rounded-xl p-12 text-center text-sm text-slate-500">
           Belum ada trade closed untuk dianalisis
         </div>
       </div>
@@ -102,7 +115,7 @@ export default function AnalitikPage() {
       <PageHeader title="Analitik" subtitle="Performa strategi, symbol, dan metrik lanjutan" />
 
       {/* headline metrics */}
-      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Metric label="Net Profit" value={fmtMoney(net)} color={net >= 0 ? "text-emerald-400" : "text-red-400"} />
         <Metric label="Win Rate" value={`${winRate.toFixed(1)}%`} />
         <Metric label="Profit Factor" value={profitFactor === Infinity ? "∞" : profitFactor.toFixed(2)} />
@@ -111,21 +124,27 @@ export default function AnalitikPage() {
         <Metric label="Avg Win / Avg Loss" value={`${fmtMoney(avgRR > 0 ? grossWin / (wins.length || 1) : 0)} / ${fmtMoney(grossLoss / (losses.length || 1))}`} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* pnl by symbol */}
         <ChartCard title="PnL per Symbol">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={symbolData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-              <XAxis dataKey="name" tick={{ fill: "#71717a", fontSize: 11 }} axisLine={{ stroke: "#3f3f46" }} tickLine={false} />
-              <YAxis tick={{ fill: "#71717a", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => fmtMoney(v)} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+              <XAxis dataKey="name" tick={{ fill: "#cbd5e1", fontSize: 11 }} axisLine={{ stroke: "#475569" }} tickLine={false} />
+              <YAxis tick={{ fill: "#cbd5e1", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => fmtMoney(v)} />
               <Tooltip
-                contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{ background: "#172033", border: "1px solid #475569", borderRadius: 8, color: "#f8fafc", fontSize: 12 }}
+                labelStyle={{ color: "#e2e8f0" }}
                 formatter={(value, name) => [fmtMoney(Number(value)), name === "pnl" ? "PnL" : "Trades"]}
               />
               <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
                 {symbolData.map((d) => (
-                  <Cell key={d.name} fill={d.pnl >= 0 ? "#34d399" : "#f87171"} />
+                  <Cell
+                    key={d.name}
+                    fill={d.pnl >= 0 ? CHART_PROFIT_FILL : CHART_LOSS_FILL}
+                    stroke={d.pnl >= 0 ? CHART_PROFIT_STROKE : CHART_LOSS_STROKE}
+                    strokeWidth={1.5}
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -137,25 +156,26 @@ export default function AnalitikPage() {
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={sideData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={3}>
-                <Cell fill="#34d399" />
-                <Cell fill="#f87171" />
+                <Cell fill={CHART_PROFIT_FILL} stroke={CHART_PROFIT_STROKE} strokeWidth={1.5} />
+                <Cell fill={CHART_LOSS_FILL} stroke={CHART_LOSS_STROKE} strokeWidth={1.5} />
               </Pie>
-              <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 12, color: "#a1a1aa" }} />
+              <Tooltip contentStyle={{ background: "#172033", border: "1px solid #475569", color: "#f8fafc", borderRadius: 8, fontSize: 12 }} />
+              <Legend wrapperStyle={{ color: "#cbd5e1", fontSize: 12 }} />
             </PieChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
 
       {/* strategy table */}
-      <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950">
-        <div className="border-b border-zinc-800 px-4 py-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Performa per Strategi</h2>
+      <div className="glass-panel mt-5 overflow-hidden rounded-xl">
+        <div className="border-b border-slate-800 px-5 py-4">
+          <h2 className="text-sm font-semibold text-slate-100">Performa per strategi</h2>
+          <p className="mt-1 text-xs text-slate-500">Perbandingan hasil untuk strategi yang digunakan bot.</p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-zinc-800 text-zinc-500 uppercase tracking-wider">
+          <table className="w-full min-w-[700px] text-[13px]">
+            <thead className="bg-slate-950/45">
+              <tr className="border-b border-slate-800 text-xs tracking-normal text-slate-500">
                 <th className="py-2 pl-4 pr-2 text-left font-medium">Strategi</th>
                 <th className="px-2 py-2 text-right font-medium">Trades</th>
                 <th className="px-2 py-2 text-right font-medium">Win</th>
@@ -167,16 +187,16 @@ export default function AnalitikPage() {
             </thead>
             <tbody>
               {strategyStats.map((s) => (
-                <tr key={s.strategy} className="border-b border-zinc-900/50 hover:bg-zinc-900/30">
-                  <td className="py-2 pl-4 pr-2 font-mono font-medium text-zinc-300">{s.strategy}</td>
-                  <td className="px-2 py-2 text-right font-mono">{s.total}</td>
-                  <td className="px-2 py-2 text-right font-mono text-emerald-400">{s.wins}</td>
-                  <td className="px-2 py-2 text-right font-mono text-red-400">{s.losses}</td>
-                  <td className="px-2 py-2 text-right font-mono">{s.winRate.toFixed(0)}%</td>
-                  <td className="px-2 py-2 text-right font-mono">
+                <tr key={s.strategy} className="border-b border-slate-800/70 transition-colors hover:bg-blue-500/[0.04]">
+                  <td className="py-3 pl-4 pr-2 font-mono font-medium text-slate-300">{s.strategy}</td>
+                  <td className="px-2 py-3 text-right font-mono text-slate-300">{s.total}</td>
+                  <td className="px-2 py-3 text-right font-mono text-emerald-400">{s.wins}</td>
+                  <td className="px-2 py-3 text-right font-mono text-red-400">{s.losses}</td>
+                  <td className="px-2 py-3 text-right font-mono text-slate-300">{s.winRate.toFixed(0)}%</td>
+                  <td className="px-2 py-3 text-right font-mono text-slate-300">
                     {s.profitFactor === Infinity ? "∞" : s.profitFactor.toFixed(2)}
                   </td>
-                  <td className={cn("py-2 pl-2 pr-4 text-right font-mono font-semibold", s.pnl >= 0 ? "text-emerald-400" : "text-red-400")}>
+                    <td className={cn("py-3 pl-2 pr-4 text-right font-mono font-semibold", s.pnl >= 0 ? "text-emerald-400" : "text-red-400")}>
                     {fmtMoney(s.pnl)}
                   </td>
                 </tr>
@@ -191,17 +211,17 @@ export default function AnalitikPage() {
 
 function Metric({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
-      <p className="text-[11px] text-zinc-500">{label}</p>
-      <p className={cn("mt-1 font-mono text-lg font-bold", color ?? "text-zinc-100")}>{value}</p>
+    <div className="glass-panel rounded-xl p-4">
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className={cn("mt-1 font-mono text-xl font-semibold", color ?? "text-slate-100")}>{value}</p>
     </div>
   );
 }
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400">{title}</h2>
+    <div className="glass-panel rounded-xl p-5">
+      <h2 className="mb-4 text-sm font-semibold text-slate-100">{title}</h2>
       {children}
     </div>
   );

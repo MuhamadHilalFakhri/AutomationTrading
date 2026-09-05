@@ -67,19 +67,19 @@ export function Terminal({ events, className }: { events: JournalEvent[]; classN
     <div
       ref={boxRef}
       className={cn(
-        "h-full overflow-y-auto rounded-lg bg-zinc-950 p-3 font-mono text-xs leading-relaxed",
+        "solid-data scrollbar-subtle h-full overflow-y-auto rounded-lg p-4 font-mono text-xs leading-relaxed",
         className,
       )}
     >
       {events.length === 0 ? (
-        <p className="text-zinc-600">Menunggu aktivitas bot...</p>
+        <p className="text-slate-500">Menunggu aktivitas bot...</p>
       ) : (
         <div className="flex flex-col-reverse gap-0.5">
           {events.map((ev) => {
             const style = KIND_STYLE[ev.kind] ?? { color: "text-zinc-400", label: ev.kind.toUpperCase() };
             return (
-              <div key={ev.id} className="flex gap-2 border-b border-zinc-900/60 py-0.5">
-                <span className="shrink-0 text-zinc-600">{fmtTime(ev.ts)}</span>
+              <div key={ev.id} className="flex gap-2 border-b border-slate-900/80 py-1">
+                <span className="shrink-0 text-slate-500">{fmtTime(ev.ts)}</span>
                 <span className={cn("w-20 shrink-0 font-semibold", style.color)}>{style.label}</span>
                 <span className="min-w-0 break-words text-zinc-300">{describeEvent(ev)}</span>
               </div>

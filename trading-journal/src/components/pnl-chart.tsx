@@ -15,7 +15,7 @@ export interface PnlPoint {
 export function DailyPnlChart({ days, className }: { days: PnlPoint[]; className?: string }) {
   if (!days.length) {
     return (
-      <div className={cn("flex w-full items-center justify-center text-sm text-zinc-600", className ?? "h-56")}>
+      <div className={cn("flex w-full items-center justify-center text-sm text-slate-500", className ?? "h-56")}>
         Belum ada data PnL
       </div>
     );
@@ -38,20 +38,20 @@ export function DailyPnlChart({ days, className }: { days: PnlPoint[]; className
         <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="pnlFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#34d399" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
+              <stop offset="0%" stopColor="#60a5fa" stopOpacity={0.24} />
+              <stop offset="100%" stopColor="#60a5fa" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#26354d" vertical={false} />
           <XAxis
             dataKey="date"
-            tick={{ fill: "#71717a", fontSize: 11 }}
-            axisLine={{ stroke: "#3f3f46" }}
+            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            axisLine={{ stroke: "#334155" }}
             tickLine={false}
             minTickGap={20}
           />
           <YAxis
-            tick={{ fill: "#71717a", fontSize: 11 }}
+            tick={{ fill: "#94a3b8", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={52}
@@ -59,18 +59,18 @@ export function DailyPnlChart({ days, className }: { days: PnlPoint[]; className
           />
           <Tooltip
             contentStyle={{
-              background: "#18181b",
-              border: "1px solid #3f3f46",
+              background: "#172033",
+              border: "1px solid #334155",
               borderRadius: 8,
               fontSize: 12,
             }}
-            labelStyle={{ color: "#a1a1aa" }}
+            labelStyle={{ color: "#cbd5e1" }}
             formatter={(value, name) => [fmtMoney(Number(value)), name === "day" ? "PnL harian" : "Balance kumulatif"]}
           />
           <Area
             type="monotone"
             dataKey="balance"
-            stroke="#34d399"
+            stroke="#60a5fa"
             strokeWidth={2}
             fill="url(#pnlFill)"
           />

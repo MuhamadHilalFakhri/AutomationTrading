@@ -19,31 +19,31 @@ export function WidgetCard({
   bodyClassName?: string;
 }) {
   return (
-    <Card className={cn("min-h-0 gap-2 py-3", className)}>
-      <CardHeader className="border-b border-zinc-800/70 px-4 pb-2 [.border-b]:pb-2">
-        <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+    <Card className={cn("min-h-0 gap-2 py-4", className)}>
+      <CardHeader className="border-b border-slate-800/70 px-5 pb-3 [.border-b]:pb-3">
+        <CardTitle className="text-sm font-semibold text-slate-100">
           {title}
         </CardTitle>
         {href && (
           <CardAction>
-            <a href={href} className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-300">
+            <a href={href} className="flex items-center gap-1.5 text-xs font-medium text-slate-500 transition-colors hover:text-blue-300">
               {hrefLabel ?? "Lihat"} <ArrowRight className="h-3 w-3" />
             </a>
           </CardAction>
         )}
       </CardHeader>
-      <CardContent className={cn("flex-1 px-4", bodyClassName)}>{children}</CardContent>
+      <CardContent className={cn("flex-1 px-5", bodyClassName)}>{children}</CardContent>
     </Card>
   );
 }
 
 function WidgetMetric({ label, value, color, icon }: { label: string; value: string; color?: string; icon?: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-lg border border-zinc-800/80 bg-zinc-900/40 px-3 py-2.5">
-      {icon && <span className="text-zinc-500">{icon}</span>}
+    <div className="glass-inset flex items-center gap-2.5 rounded-lg px-3 py-2.5">
+      {icon && <span className="text-blue-300/75">{icon}</span>}
       <div className="min-w-0">
-        <p className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</p>
-        <p className={cn("truncate font-mono text-base font-bold leading-tight", color ?? "text-zinc-100")}>{value}</p>
+        <p className="text-xs font-medium tracking-normal text-slate-500">{label}</p>
+        <p className={cn("truncate font-mono text-base font-semibold leading-tight", color ?? "text-slate-100")}>{value}</p>
       </div>
     </div>
   );
@@ -83,7 +83,7 @@ export function AnalitikWidget({ className }: { className?: string }) {
   if (loading) {
     return (
       <WidgetCard title="Analitik" href="/analitik" className={className}>
-        <div className="flex h-full items-center justify-center text-sm text-zinc-600">Memuat...</div>
+        <div className="flex h-full items-center justify-center text-sm text-slate-500">Memuat analitik...</div>
       </WidgetCard>
     );
   }
@@ -91,7 +91,7 @@ export function AnalitikWidget({ className }: { className?: string }) {
   return (
     <WidgetCard title="Analitik" href="/analitik" className={className}>
       {closed.length === 0 ? (
-        <div className="flex h-full items-center justify-center text-sm text-zinc-600">Belum ada trade closed</div>
+        <div className="flex h-full items-center justify-center text-sm text-slate-500">Belum ada trade closed</div>
       ) : (
         <div className="flex flex-col gap-2.5">
           <div className="grid grid-cols-2 gap-2.5">
@@ -101,12 +101,12 @@ export function AnalitikWidget({ className }: { className?: string }) {
             <WidgetMetric icon={<TrendingDown className="h-4 w-4" />} label="Total Closed" value={String(closed.length)} />
           </div>
           {top && (
-            <div className="flex items-center justify-between rounded-lg border border-zinc-800/80 bg-zinc-900/40 px-3 py-2 text-xs">
-              <span className="text-zinc-500">Top Symbol</span>
-              <span className="font-mono font-semibold text-zinc-200">{top[0]}</span>
+            <div className="glass-inset flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-xs">
+              <span className="text-slate-500">Top symbol</span>
+              <span className="font-mono font-semibold text-slate-200">{top[0]}</span>
               <span className="flex items-center gap-2">
                 <Badge variant="outline" className="font-mono text-[10px]">{top[1].total} trade</Badge>
-                <span className={cn("font-mono font-bold", top[1].pnl >= 0 ? "text-emerald-400" : "text-red-400")}>
+                <span className={cn("font-mono font-semibold", top[1].pnl >= 0 ? "text-emerald-400" : "text-red-400")}>
                   {fmtMoney(top[1].pnl)}
                 </span>
               </span>

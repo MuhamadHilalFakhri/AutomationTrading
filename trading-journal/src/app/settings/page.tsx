@@ -133,18 +133,18 @@ export default function SettingsPage() {
     <div>
       <PageHeader title="Pengaturan" subtitle="Konfigurasi sinkronisasi MT5 & auto sync" />
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2">
         {/* Auto Sync */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-zinc-300">
-              <Zap className="h-4 w-4 text-amber-400" /> Auto Sync
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+              <Zap className="h-4 w-4 text-amber-300" /> Auto Sync
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3">
+            <div className="glass-inset flex items-center justify-between gap-4 rounded-lg px-4 py-3.5">
               <div>
-                <p className="text-sm font-medium text-zinc-200">Sinkronisasi otomatis</p>
+                <p className="text-sm font-medium text-slate-100">Sinkronisasi otomatis</p>
                 <p className="text-xs text-zinc-500">Tarik data MT5 → journal secara berkala</p>
               </div>
               <Switch
@@ -155,37 +155,38 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex items-center gap-3">
-              <label className="text-sm text-zinc-400">Interval</label>
+            <div className="flex flex-wrap items-center gap-3">
+              <label htmlFor="sync-interval" className="text-sm text-slate-400">Interval sync</label>
               <select
+                id="sync-interval"
                 value={interval}
                 onChange={(e) => changeInterval(Number(e.target.value))}
                 disabled={!enabled || saving}
-                className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 disabled:opacity-40"
+                className="glass-inset h-9 rounded-lg border-white/10 px-3 text-sm text-slate-200 outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {INTERVALS.map((o) => (
                   <option key={o.v} value={o.v}>{o.label}</option>
                 ))}
               </select>
-              {saving && <span className="text-xs text-zinc-500">Menyimpan...</span>}
+              {saving && <span role="status" className="text-xs text-slate-500">Menyimpan...</span>}
             </div>
 
             {auto && (
-              <div className="flex flex-col gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3 text-xs">
+              <div className="glass-inset flex flex-col gap-2 rounded-lg px-4 py-3 text-[13px]">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-3.5 w-3.5 text-zinc-500" />
-                  <span className="text-zinc-500">Status:</span>
+                  <Clock className="h-3.5 w-3.5 text-slate-500" />
+                  <span className="text-slate-500">Status:</span>
                   <Badge variant={auto.enabled ? "default" : "outline"} className={cn("text-[10px]", auto.enabled && "bg-emerald-600 text-black")}>
                     {auto.enabled ? "AKTIF" : "MATI"}
                   </Badge>
                   {auto.running && <Badge variant="outline" className="text-[10px] text-amber-400">SYNC BERJALAN</Badge>}
                 </div>
-                <p className="text-zinc-500">Terakhir: <span className="text-zinc-300">{fmtLast(auto.lastRun)}</span></p>
-                <p className="text-zinc-500">Hasil: <span className={cn("font-mono", auto.lastResult?.startsWith("ok") ? "text-emerald-400" : "text-zinc-300")}>{auto.lastResult ?? "-"}</span></p>
+                <p className="text-slate-500">Terakhir: <span className="text-slate-300">{fmtLast(auto.lastRun)}</span></p>
+                <p className="text-slate-500">Hasil: <span className={cn("font-mono", auto.lastResult?.startsWith("ok") ? "text-emerald-300" : "text-slate-300")}>{auto.lastResult ?? "-"}</span></p>
               </div>
             )}
 
-            <Button variant="outline" onClick={syncNow} disabled={syncing}>
+            <Button variant="outline" onClick={syncNow} disabled={syncing} className="border-slate-700 bg-slate-900/70 text-slate-200 hover:border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-200">
               <RefreshCw className={cn("h-4 w-4", syncing && "animate-spin")} />
               {syncing ? "Menyinkronkan..." : "Sync Sekarang"}
             </Button>
@@ -195,22 +196,22 @@ export default function SettingsPage() {
         {/* Paths */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-zinc-300">
-              <Database className="h-4 w-4 text-blue-400" /> Path yang Disinkronkan
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+              <Database className="h-4 w-4 text-blue-300" /> Path yang disinkronkan
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {!paths ? (
-              <p className="text-sm text-zinc-600">Memuat...</p>
+              <p className="text-sm text-slate-500">Memuat...</p>
             ) : (
               PATH_META.map(({ key, label, desc, icon: Icon }) => {
                 const p = paths[key];
                 return (
-                  <div key={key} className="flex items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-900/40 px-3 py-2.5">
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-zinc-500" />
+                  <div key={key} className="glass-inset flex items-start gap-3 rounded-lg px-3.5 py-3">
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-zinc-200">{label}</p>
+                        <p className="text-sm font-medium text-slate-100">{label}</p>
                         {p.exists === null ? (
                           <HelpCircle className="h-3.5 w-3.5 text-zinc-600" />
                         ) : p.exists ? (
@@ -219,14 +220,14 @@ export default function SettingsPage() {
                           <span className="flex items-center gap-1 text-[10px] text-red-400"><XCircle className="h-3 w-3" /> tidak ada</span>
                         )}
                       </div>
-                      <p className="truncate font-mono text-[11px] text-zinc-500">{p.path}</p>
-                      <p className="text-[11px] text-zinc-600">{desc}</p>
+                      <p className="truncate font-mono text-xs text-slate-500">{p.path}</p>
+                      <p className="mt-0.5 text-xs text-slate-500">{desc}</p>
                     </div>
                   </div>
                 );
               })
             )}
-            <p className="text-[11px] text-zinc-600">
+            <p className="text-xs leading-5 text-slate-500">
               Path diatur lewat file <span className="font-mono text-zinc-500">.env</span> di folder proyek (lihat <span className="font-mono text-zinc-500">.env.example</span>). Sesuaikan saat pindah ke device lain.
             </p>
           </CardContent>

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { Trade } from "@/lib/types";
 import { fmtMoney, fmtNum, fmtTime } from "@/lib/types";
 import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export function TradesTable({ className }: { className?: string }) {
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -28,27 +29,27 @@ export function TradesTable({ className }: { className?: string }) {
 
   if (trades.length === 0) {
     return (
-      <div className={cn("flex flex-col items-center justify-center py-16 text-zinc-500", className)}>
-        <Minus className="h-8 w-8 mb-2 text-zinc-600" />
+      <div className={cn("flex flex-col items-center justify-center py-16 text-slate-500", className)}>
+        <Minus className="mb-2 h-8 w-8 text-slate-600" />
         <p className="text-sm">Belum ada trade</p>
       </div>
     );
   }
 
   const statusColor: Record<string, string> = {
-    open: "text-emerald-400",
-    closed: "text-zinc-400",
-    pending: "text-amber-400",
-    rejected: "text-red-400",
+    open: "border-emerald-400/20 bg-emerald-500/10 text-emerald-300",
+    closed: "border-slate-700 bg-slate-800 text-slate-300",
+    pending: "border-amber-400/20 bg-amber-500/10 text-amber-300",
+    rejected: "border-red-400/20 bg-red-500/10 text-red-300",
   };
 
   return (
     <div className={cn("overflow-x-auto", className)}>
-      <table className="w-full text-xs">
-        <thead>
-          <tr className="border-b border-zinc-800 text-zinc-500 uppercase tracking-wider">
-            <th className="text-left py-2 pr-2 font-medium">Symbol</th>
-            <th className="text-left py-2 px-2 font-medium">Side</th>
+      <table className="w-full min-w-[760px] text-[13px]">
+        <thead className="bg-slate-900/70">
+          <tr className="border-b border-slate-800 text-xs tracking-normal text-slate-500">
+            <th className="py-3 pr-2 text-left font-medium">Symbol</th>
+            <th className="px-2 py-3 text-left font-medium">Side</th>
             <th className="text-right py-2 px-2 font-medium">Lots</th>
             <th className="text-right py-2 px-2 font-medium">Entry</th>
             <th className="text-right py-2 px-2 font-medium">SL</th>
@@ -65,8 +66,8 @@ export function TradesTable({ className }: { className?: string }) {
             const sideLower = t.side?.toLowerCase() ?? "";
             const isLong = sideLower.startsWith("buy");
             return (
-              <tr key={t.id} className="border-b border-zinc-900/50 hover:bg-zinc-900/30">
-                <td className="py-2 pr-2 font-semibold">{t.symbol}</td>
+              <tr key={t.id} className="border-b border-slate-800/70 transition-colors hover:bg-blue-500/[0.04]">
+                <td className="py-3 pr-2 font-mono font-semibold text-slate-200">{t.symbol}</td>
                 <td className="py-2 px-2">
                   <span className={cn(
                     "flex items-center gap-1 font-medium",
@@ -76,33 +77,33 @@ export function TradesTable({ className }: { className?: string }) {
                     {t.side}
                   </span>
                 </td>
-                <td className="py-2 px-2 text-right font-mono">{fmtNum(t.lots)}</td>
-                <td className="py-2 px-2 text-right font-mono">{fmtNum(t.entry)}</td>
-                <td className="py-2 px-2 text-right font-mono text-zinc-500">{fmtNum(t.sl)}</td>
-                <td className="py-2 px-2 text-right font-mono text-zinc-500">{fmtNum(t.tp)}</td>
+                <td className="px-2 py-3 text-right font-mono text-slate-300">{fmtNum(t.lots)}</td>
+                <td className="px-2 py-3 text-right font-mono text-slate-300">{fmtNum(t.entry)}</td>
+                <td className="px-2 py-3 text-right font-mono text-slate-500">{fmtNum(t.sl)}</td>
+                <td className="px-2 py-3 text-right font-mono text-slate-500">{fmtNum(t.tp)}</td>
                 <td className={cn(
-                  "py-2 px-2 text-right font-mono font-semibold",
+                  "px-2 py-3 text-right font-mono font-semibold",
                   profit != null && profit > 0 ? "text-emerald-400" :
                     profit != null && profit < 0 ? "text-red-400" : "text-zinc-500",
                 )}>
                   {profit != null ? `${profit >= 0 ? "+" : ""}${fmtMoney(profit)}` : "-"}
                 </td>
-                <td className="py-2 px-2">
-                  <span className={cn(statusColor[t.status] ?? "text-zinc-500")}>{t.status}</span>
+                <td className="px-2 py-3">
+                  <Badge variant="outline" className={cn("capitalize", statusColor[t.status] ?? "text-slate-400")}>{t.status}</Badge>
                 </td>
-                <td className="py-2 px-2">
-                  <span className={cn(
-                    "rounded border px-1 py-0.5 text-[10px] font-medium",
+                <td className="px-2 py-3">
+                  <Badge variant="outline" className={cn(
+                    "text-[10px] font-medium",
                     t.source === "mt5"
-                      ? "border-sky-900/60 bg-sky-950/40 text-sky-400"
+                      ? "border-sky-400/20 bg-sky-500/10 text-sky-300"
                       : t.source === "bot+mt5"
-                        ? "border-emerald-900/60 bg-emerald-950/40 text-emerald-400"
-                        : "border-zinc-800 bg-zinc-900 text-zinc-400",
+                        ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300"
+                        : "border-slate-700 bg-slate-900 text-slate-400",
                   )}>
                     {t.source === "mt5" ? "MT5" : t.source === "bot+mt5" ? "BOT+MT5" : "BOT"}
-                  </span>
+                  </Badge>
                 </td>
-                <td className="py-2 pl-2 text-zinc-500">{t.openTs ? fmtTime(t.openTs) : "-"}</td>
+                <td className="py-3 pl-2 text-slate-500">{t.openTs ? fmtTime(t.openTs) : "-"}</td>
               </tr>
             );
           })}

@@ -51,34 +51,34 @@ export function PnlCalendar() {
 
   return (
     <div>
-      <div className="flex items-center gap-2 mb-3">
-        <button onClick={prevMonth} className="rounded-md border border-zinc-700 p-1 hover:bg-zinc-800">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <button type="button" onClick={prevMonth} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70" aria-label="Bulan sebelumnya">
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <span className="font-semibold text-sm">{name}</span>
-        <button onClick={nextMonth} className="rounded-md border border-zinc-700 p-1 hover:bg-zinc-800">
+        <span className="text-sm font-semibold capitalize text-slate-100">{name}</span>
+        <button type="button" onClick={nextMonth} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70" aria-label="Bulan berikutnya">
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-3 text-center text-xs">
-        <div className="rounded-md bg-zinc-900/50 p-1.5">
-          <div className={cn("font-bold", monthPnl >= 0 ? "text-emerald-400" : "text-red-400")}>{fmtMoney(monthPnl)}</div>
-          <div className="text-zinc-500">Monthly PnL</div>
+      <div className="mb-4 grid grid-cols-3 gap-2 text-center text-xs">
+        <div className="glass-inset rounded-lg p-2.5">
+          <div className={cn("font-mono font-semibold", monthPnl >= 0 ? "text-emerald-300" : "text-red-300")}>{fmtMoney(monthPnl)}</div>
+          <div className="mt-1 text-slate-500">Monthly PnL</div>
         </div>
-        <div className="rounded-md bg-zinc-900/50 p-1.5">
-          <div className="font-bold">{monthTrades}</div>
-          <div className="text-zinc-500">Trades</div>
+        <div className="glass-inset rounded-lg p-2.5">
+          <div className="font-mono font-semibold text-slate-100">{monthTrades}</div>
+          <div className="mt-1 text-slate-500">Trades</div>
         </div>
-        <div className="rounded-md bg-zinc-900/50 p-1.5">
-          <div className="font-bold">{monthTrades ? Math.round((monthWins / monthTrades) * 100) + "%" : "0%"}</div>
-          <div className="text-zinc-500">Win Rate</div>
+        <div className="glass-inset rounded-lg p-2.5">
+          <div className="font-mono font-semibold text-slate-100">{monthTrades ? Math.round((monthWins / monthTrades) * 100) + "%" : "0%"}</div>
+          <div className="mt-1 text-slate-500">Win Rate</div>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-xs">
+      <div className="grid grid-cols-7 gap-1.5 text-xs">
         {dayHeaders.map((d) => (
-          <div key={d} className="text-center font-medium text-zinc-500 py-0.5">{d}</div>
+          <div key={d} className="py-1 text-center text-[11px] font-medium text-slate-500">{d}</div>
         ))}
         {Array.from({ length: startDow }).map((_, i) => (
           <div key={`empty-${i}`} />
@@ -93,18 +93,18 @@ export function PnlCalendar() {
             <div
               key={d}
               className={cn(
-                "flex flex-col items-center justify-center rounded-md border p-1 aspect-[5/4]",
-                isToday ? "border-sky-500/50" : "border-transparent",
-                info && pnl > 0 ? "bg-emerald-900/20" : info && pnl < 0 ? "bg-red-900/20" : "bg-zinc-900/10",
+                "flex aspect-[5/4] flex-col items-center justify-center rounded-lg border p-1",
+                isToday ? "border-blue-400/60" : "border-slate-800/60",
+                info && pnl > 0 ? "bg-emerald-500/10" : info && pnl < 0 ? "bg-red-500/10" : "bg-slate-950/35",
               )}
             >
-              <span className={cn("font-medium", isToday ? "text-sky-400" : "text-zinc-400")}>{d}</span>
+              <span className={cn("font-medium", isToday ? "text-blue-300" : "text-slate-400")}>{d}</span>
               {info ? (
                 <>
-                  <span className={cn("text-[10px] leading-none", pnl >= 0 ? "text-emerald-400" : "text-red-400")}>
+                  <span className={cn("text-[10px] leading-none", pnl >= 0 ? "text-emerald-300" : "text-red-300")}>
                     {pnl >= 0 ? "+" : ""}${Math.abs(pnl).toFixed(0)}
                   </span>
-                  <span className="text-[9px] text-zinc-600 leading-none">{info.tradeCount}t</span>
+                  <span className="text-[10px] text-slate-500 leading-none">{info.tradeCount}t</span>
                 </>
               ) : (
                 <span className="text-[9px] leading-none">&nbsp;</span>

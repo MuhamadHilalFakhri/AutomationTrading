@@ -19,7 +19,7 @@ export default function TerminalPage() {
       : events.filter((e) => e.kind === filter);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col lg:h-[calc(100vh-3rem)]">
+    <div className="flex min-h-[calc(100vh-7rem)] flex-col">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <PageHeader
           title="Terminal"
@@ -30,11 +30,11 @@ export default function TerminalPage() {
 
       {/* status bot */}
       {bot && !bot.online && (
-        <div className="mb-3 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+        <div role="alert" className="glass-inset mb-4 flex items-start gap-3 rounded-xl bg-red-500/10 px-4 py-3 text-sm ring-red-400/20">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-300" />
           <div>
-            <p className="font-medium text-red-300">Bot tidak berjalan</p>
-            <p className="text-xs text-red-300/70">
+            <p className="font-medium text-red-200">Bot tidak berjalan</p>
+            <p className="mt-0.5 text-[13px] leading-5 text-red-200/70">
               Tidak ada aktivitas sejak {fmtAge(bot.ageSec)}.
               Pastikan bot MT5 menyala di device trading.
             </p>
@@ -42,31 +42,33 @@ export default function TerminalPage() {
         </div>
       )}
       {bot?.online && (
-        <div className="mb-3 flex items-center gap-2 text-xs text-emerald-400/80">
-          <CheckCircle2 className="h-3.5 w-3.5" />
+        <div className="mb-4 flex items-center gap-2 text-[13px] text-emerald-300/85">
+          <CheckCircle2 className="h-4 w-4" />
           Bot aktif — aktivitas terakhir {fmtAge(bot.ageSec)}
         </div>
       )}
 
       {/* filter pills */}
-      <div className="-mt-4 mb-3 flex flex-wrap gap-1.5">
+      <div className="glass-panel mb-4 flex flex-wrap items-center gap-1.5 rounded-xl p-2">
         {kinds.map((k) => (
           <button
             key={k}
             onClick={() => setFilter(k)}
+            type="button"
+            aria-pressed={filter === k}
             className={
               filter === k
-                ? "rounded-full bg-zinc-800 px-3 py-1 text-xs font-medium text-zinc-100"
-                : "rounded-full border border-zinc-800 px-3 py-1 text-xs text-zinc-500 hover:bg-zinc-900"
+                ? "min-h-8 rounded-lg bg-blue-500/15 px-3 text-[13px] font-medium text-blue-200 ring-1 ring-inset ring-blue-400/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+                : "min-h-8 rounded-lg px-3 text-[13px] text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
             }
           >
             {k === "all" ? "Semua" : k}
           </button>
         ))}
-        <span className="ml-auto self-center text-xs text-zinc-600">{filtered.length} event</span>
+        <span className="ml-auto self-center px-2 text-xs text-slate-500">{filtered.length} event</span>
       </div>
 
-      <div className="min-h-0 flex-1 rounded-xl border border-zinc-800 bg-zinc-950 p-2">
+      <div className="solid-data min-h-0 flex-1 overflow-hidden rounded-xl border p-2">
         <Terminal events={filtered.slice(0, 300)} className="h-full" />
       </div>
     </div>

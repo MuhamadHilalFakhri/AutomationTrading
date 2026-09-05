@@ -5,13 +5,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const inter = Inter({
-  variable: "--font-sans",
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -27,19 +27,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className="dark">
-      <body className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased bg-black text-zinc-100`}>
+    <html lang="id" className={`${inter.variable} ${jetbrainsMono.variable} dark`} data-scroll-behavior="smooth">
+      <body className="font-sans">
         <Sidebar />
-        <main className="min-h-screen pt-14 lg:pt-0 lg:pl-60">
-          <div className="mx-auto max-w-7xl p-4 sm:p-6">{children}</div>
+        <main className="min-h-screen pt-16 transition-[padding] duration-200 ease-out lg:pl-[var(--sidebar-width)] lg:pt-0">
+          <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 sm:py-7 lg:px-8">{children}</div>
         </main>
         <Toaster
           position="bottom-right"
+          richColors
           toastOptions={{
             style: {
-              background: "#18181b",
-              color: "#e4e4e7",
-              border: "1px solid #27272a",
+              background: "#172033",
+              color: "#eef2ff",
+              border: "1px solid #334155",
             },
           }}
         />

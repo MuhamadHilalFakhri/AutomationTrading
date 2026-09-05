@@ -15,7 +15,7 @@ function Switch({
         "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        "bg-zinc-700 data-[checked]:bg-emerald-600",
+        "bg-slate-800 ring-1 ring-inset ring-white/10 data-[checked]:bg-blue-600",
         className,
       )}
       {...props}

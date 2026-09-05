@@ -58,7 +58,7 @@ function fmtMoneySafe(v: unknown): string {
 export function RecentEvents({ events }: { events: JournalEvent[] }) {
   if (!events.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-zinc-600">
+      <div className="flex flex-col items-center justify-center py-10 text-slate-500">
         <p className="text-sm">Menunggu aktivitas bot...</p>
       </div>
     );
@@ -68,11 +68,11 @@ export function RecentEvents({ events }: { events: JournalEvent[] }) {
       {events.slice(0, 40).map((ev) => {
         const style = KIND_STYLE[ev.kind] ?? { color: "text-zinc-400", label: ev.kind.toUpperCase() };
         return (
-          <div key={ev.id} className="flex items-start gap-2 border-b border-zinc-900/60 pb-2 last:border-0">
-            <span className="shrink-0 font-mono text-[10px] text-zinc-600">{fmtTime(ev.ts)}</span>
-            <span className={cn("w-16 shrink-0 text-[10px] font-bold", style.color)}>{style.label}</span>
-            <span className="min-w-0 flex-1 text-xs leading-snug text-zinc-300">
-              {ev.symbol && <span className="font-mono text-zinc-400">{ev.symbol} </span>}
+          <div key={ev.id} className="flex items-start gap-2 border-b border-slate-800/70 pb-2.5 last:border-0">
+            <span className="shrink-0 font-mono text-[11px] text-slate-500">{fmtTime(ev.ts)}</span>
+            <span className={cn("w-16 shrink-0 text-[11px] font-semibold", style.color)}>{style.label}</span>
+            <span className="min-w-0 flex-1 text-[13px] leading-5 text-slate-300">
+              {ev.symbol && <span className="font-mono text-slate-400">{ev.symbol} </span>}
               {describeEvent(ev)}
             </span>
           </div>
