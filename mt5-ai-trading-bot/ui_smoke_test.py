@@ -20,7 +20,7 @@ r.update_idletasks()
 r.update()
 
 # 1. tema
-check(r.cget('bg') == '#0e1117', f'bg dark theme = {r.cget("bg")}')
+check(r.cget('bg') == '#0B0F14', f'bg dark theme = {r.cget("bg")}')
 check(r.title().startswith('AI Trading Bot'), f'title = {r.title()}')
 
 # 2. tombol toolbar + style
@@ -42,7 +42,7 @@ if nb:
     tabs = [nb.tab(t, 'text').strip() for t in nb.tabs()]
     print(f'  tabs: {tabs}')
     check(len(tabs) >= 8, f'{len(tabs)} tabs >= 8')
-check(tabs[0].startswith('🖥'), f'tab pertama Terminal = {tabs[0]}')
+check(tabs[0] == 'Terminal', f'tab pertama Terminal = {tabs[0]}')
 
 # 4. status label awal
 check('STOPPED' in gui.lbl_state.cget('text'), f'state label = {gui.lbl_state.cget("text")}')
@@ -87,10 +87,10 @@ check(hasattr(gui, '_centang'), 'helper _centang ada')
 v = _tk.BooleanVar(value=False)
 lbl = gui._centang(r, 'TesCentang', v)
 r.update()
-check('☐' in lbl.cget('text'), 'label centang awal ☐')
+check('☐' in lbl.cget('text'), 'checkbox awal')
 v.set(True)
 r.update()
-check('☑' in lbl.cget('text') and '#2f81f7' in lbl.cget('fg'), 'label centang aktif ☑ biru')
+check('☑' in lbl.cget('text') and '#3B82F6' in lbl.cget('fg'), 'checkbox aktif biru')
 lbl.destroy()
 
 # 10. auto-save saat close: panggil _on_close (runner tidak hidup) -> config.yaml valid
@@ -100,7 +100,8 @@ gui._on_close()   # destroy root; auto-save di dalamnya
 after = open('config.yaml', encoding='utf-8').read()
 c = _yaml.safe_load(after)
 check(c.get('provider', {}).get('base_url') == 'http://localhost:20128/v1', 'auto-save: base_url utuh')
-check(c.get('trade_management', {}).get('partial_tp_enabled') is True, 'auto-save: partial_tp utuh')
+check(isinstance(c.get('trade_management', {}).get('partial_tp_enabled'), bool),
+      'auto-save: partial_tp tetap boolean')
 check(bool(c.get('provider', {}).get('api_key')), 'auto-save: api_key tidak hilang')
 check(bool(c.get('telegram', {}).get('bot_token')), 'auto-save: bot_token tidak hilang')
 

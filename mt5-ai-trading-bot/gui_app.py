@@ -132,6 +132,31 @@ MODELS = ['COMBO', 'h1', 'gpt-4o', 'claude-sonnet-4', 'claude-3.5-haiku', 'deeps
 STRATEGIES = ['adaptive', 'scalping', 'snd', 'trend', 'custom']
 
 
+# UI palette is intentionally small and opaque.  Keeping these values in one
+# place makes the desktop terminal feel consistent without touching any of the
+# trading/configuration code below.
+UI = {
+    'bg': '#0B0F14',
+    'panel': '#111821',
+    'panel_alt': '#151E29',
+    'field': '#1B2633',
+    'border': '#2A3747',
+    'text': '#F1F5F9',
+    'muted': '#94A3B8',
+    'blue': '#3B82F6',
+    'green': '#22C55E',
+    'red': '#EF4444',
+    'amber': '#F59E0B',
+    'cyan': '#38BDF8',
+    'terminal': '#0A0E13',
+}
+FONT_UI = ('Segoe UI', 10)
+FONT_UI_MEDIUM = ('Segoe UI', 10, 'bold')
+FONT_HEADING = ('Segoe UI', 20, 'bold')
+FONT_MONO = ('Consolas', 10)
+FONT_MONO_BOLD = ('Consolas', 10, 'bold')
+
+
 # ── config load/save ───────────────────────────────────────────────
 def _load_cfg() -> dict:
     if not os.path.exists(CONFIG_PATH):
@@ -269,11 +294,12 @@ class BotRunner:
 class BotGUI:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title('AI Trading Bot — Control Panel')
-        self.root.geometry('1020x800')
-        self.root.minsize(880, 660)
+        self.root.title('AI Trading Bot — MT5 Terminal')
+        self.root.geometry('1280x860')
+        self.root.minsize(1040, 700)
         self._set_window_icon()
         self._setup_style()
+        self._set_dark_titlebar()
         self.cfg = _load_cfg()
         # prefill API key dari env jika config kosong
         if not self._deep_get(self.cfg, ['provider', 'api_key'], ''):
@@ -283,6 +309,9 @@ class BotGUI:
         self._ui_state = 'stopped'
         self._pending_restart = False
         self._fields = []
+        self._field_errors = {}
+        self._test_buttons = []
+        self._last_activity = 'Ready'
         self._log_pos = os.path.getsize(LOG_PATH) if os.path.exists(LOG_PATH) else 0
         self._build_ui()
         self.root.protocol('WM_DELETE_WINDOW', self._on_close)
@@ -317,69 +346,115 @@ class BotGUI:
             st.theme_use('clam')
         except Exception:
             pass
-        bg = '#0e1117'
-        panel = '#161b24'
-        field = '#1c2430'
-        fg = '#e6e6e6'
-        dim = '#9aa4b2'
-        accent = '#2f81f7'
-        self.root.configure(bg=bg)
-        st.configure('.', background=bg, foreground=fg, fieldbackground=field,
-                     bordercolor='#2a3442', lightcolor=bg, darkcolor=bg,
-                     focuscolor=accent, font=('Segoe UI', 9))
-        st.configure('TFrame', background=bg)
-        st.configure('Panel.TFrame', background=panel)
-        st.configure('TLabel', background=bg, foreground=fg)
-        st.configure('Dim.TLabel', background=bg, foreground=dim)
-        st.configure('Header.TLabel', background=bg, foreground='#ffffff',
-                     font=('Segoe UI', 13, 'bold'))
-        st.configure('Sub.TLabel', background=bg, foreground=dim,
+
+        self.root.configure(bg=UI['bg'])
+        st.configure('.', background=UI['bg'], foreground=UI['text'],
+                     fieldbackground=UI['field'], bordercolor=UI['border'],
+                     lightcolor=UI['bg'], darkcolor=UI['bg'],
+                     focuscolor=UI['blue'], font=FONT_UI)
+        st.configure('TFrame', background=UI['bg'])
+        st.configure('Panel.TFrame', background=UI['panel'])
+        st.configure('AltPanel.TFrame', background=UI['panel_alt'])
+        st.configure('TLabel', background=UI['panel'], foreground=UI['text'],
+                     font=FONT_UI)
+        st.configure('Dim.TLabel', background=UI['panel'], foreground=UI['muted'],
                      font=('Segoe UI', 9))
-        st.configure('TLabelframe', background=bg, bordercolor='#2a3442',
-                     foreground='#c9d4e3', relief='solid')
-        st.configure('TLabelframe.Label', background=bg, foreground='#c9d4e3',
-                     font=('Segoe UI', 9, 'bold'))
-        st.configure('TNotebook', background=bg, bordercolor='#2a3442')
-        st.configure('TNotebook.Tab', background=panel, foreground=dim,
-                     padding=(14, 6), font=('Segoe UI', 9))
-        st.map('TNotebook.Tab', background=[('selected', '#1e2633')],
-               foreground=[('selected', '#ffffff')])
-        st.configure('TEntry', fieldbackground=field, foreground=fg,
-                     insertcolor=fg, bordercolor='#2a3442')
-        st.configure('TCombobox', fieldbackground=field, foreground=fg,
-                     arrowcolor=fg, bordercolor='#2a3442')
-        st.map('TCombobox', fieldbackground=[('readonly', field)])
-        st.configure('TCheckbutton', background=bg, foreground=fg)
-        st.map('TCheckbutton', background=[('active', bg)])
-        st.configure('TButton', background=panel, foreground=fg,
-                     bordercolor='#2a3442', padding=(10, 5),
-                     font=('Segoe UI', 9, 'bold'))
-        st.map('TButton', background=[('active', '#2a3442'), ('disabled', '#1a202b')],
-               foreground=[('disabled', '#5b6675')])
-        # tombol aksi berwarna
-        st.configure('Start.TButton', background='#1a7f37', foreground='#ffffff')
-        st.map('Start.TButton', background=[('active', '#238a42'), ('disabled', '#14321f')],
-               foreground=[('disabled', '#7a8f80')])
-        st.configure('Stop.TButton', background='#b01e28', foreground='#ffffff')
-        st.map('Stop.TButton', background=[('active', '#c22b35'), ('disabled', '#3a1518')],
-               foreground=[('disabled', '#a07074')])
-        st.configure('Restart.TButton', background='#b06000', foreground='#ffffff')
-        st.map('Restart.TButton', background=[('active', '#c57112'), ('disabled', '#3a2a12')],
-               foreground=[('disabled', '#a08a62')])
-        st.configure('Test.TButton', background=panel, foreground='#7cc4ff',
+        st.configure('Header.TLabel', background=UI['bg'], foreground=UI['text'],
+                     font=FONT_HEADING)
+        st.configure('Sub.TLabel', background=UI['bg'], foreground=UI['muted'],
+                     font=('Segoe UI', 10))
+        st.configure('Card.TLabelframe', background=UI['panel'],
+                     bordercolor=UI['border'], foreground=UI['text'],
+                     relief='solid', borderwidth=1, padding=12)
+        st.configure('Card.TLabelframe.Label', background=UI['panel'],
+                     foreground=UI['text'], font=FONT_UI_MEDIUM)
+        st.configure('TNotebook', background=UI['bg'], bordercolor=UI['border'],
+                     tabmargins=(0, 0, 0, 0))
+        st.configure('TNotebook.Tab', background=UI['panel'], foreground=UI['muted'],
+                     padding=(16, 9), font=FONT_UI)
+        st.map('TNotebook.Tab', background=[('selected', UI['panel_alt']),
+                                            ('active', UI['field'])],
+               foreground=[('selected', UI['text']), ('active', UI['text'])])
+        st.configure('TEntry', fieldbackground=UI['field'], foreground=UI['text'],
+                     insertcolor=UI['text'], bordercolor=UI['border'],
+                     padding=(8, 6), font=FONT_MONO)
+        st.map('TEntry', bordercolor=[('focus', UI['blue'])],
+               lightcolor=[('focus', UI['blue'])], darkcolor=[('focus', UI['blue'])])
+        st.configure('TCombobox', fieldbackground=UI['field'], foreground=UI['text'],
+                     arrowcolor=UI['muted'], bordercolor=UI['border'],
+                     padding=(8, 5), font=FONT_MONO)
+        st.map('TCombobox', fieldbackground=[('readonly', UI['field']),
+                                             ('focus', UI['field'])],
+               bordercolor=[('focus', UI['blue'])],
+               foreground=[('disabled', UI['muted'])])
+        st.configure('TButton', background=UI['panel_alt'], foreground=UI['text'],
+                     bordercolor=UI['border'], padding=(12, 7),
+                     font=FONT_UI_MEDIUM)
+        st.map('TButton', background=[('pressed', UI['field']),
+                                      ('active', UI['field']),
+                                      ('disabled', UI['panel'])],
+               foreground=[('disabled', '#526174')],
+               bordercolor=[('focus', UI['blue'])])
+        st.configure('Start.TButton', background='#176B35', foreground='#FFFFFF')
+        st.map('Start.TButton', background=[('pressed', '#0F4D26'),
+                                            ('active', '#1D8442'),
+                                            ('disabled', '#14321F')])
+        st.configure('Stop.TButton', background='#8E2630', foreground='#FFFFFF')
+        st.map('Stop.TButton', background=[('pressed', '#641A22'),
+                                           ('active', '#B3313D'),
+                                           ('disabled', '#3A1518')])
+        st.configure('Restart.TButton', background='#95600B', foreground='#FFFFFF')
+        st.map('Restart.TButton', background=[('pressed', '#684308'),
+                                              ('active', '#B8790E'),
+                                              ('disabled', '#3A2A12')])
+        st.configure('Test.TButton', background=UI['panel_alt'], foreground=UI['cyan'],
+                     font=FONT_UI)
+        st.map('Test.TButton', background=[('pressed', UI['field']),
+                                           ('active', UI['field']),
+                                           ('disabled', UI['panel'])])
+        st.configure('Save.TButton', background='#245DA8', foreground='#FFFFFF')
+        st.map('Save.TButton', background=[('pressed', '#1B467E'),
+                                           ('active', '#3275CD'),
+                                           ('disabled', '#1E2F40')])
+        st.configure('Accent.TButton', background='#1E4F8C', foreground='#FFFFFF')
+        st.map('Accent.TButton', background=[('pressed', '#163966'),
+                                             ('active', '#2865AD')])
+        st.configure('Status.TLabel', background=UI['panel_alt'], foreground=UI['text'],
+                     font=FONT_MONO_BOLD, padding=(10, 6))
+        st.configure('StatusMuted.TLabel', background=UI['panel'], foreground=UI['muted'],
+                     font=FONT_MONO, padding=(10, 6))
+        st.configure('StatusGood.TLabel', background='#123A25', foreground=UI['green'],
+                     font=FONT_MONO_BOLD, padding=(10, 6))
+        st.configure('StatusWarn.TLabel', background='#3A2C12', foreground=UI['amber'],
+                     font=FONT_MONO_BOLD, padding=(10, 6))
+        st.configure('StatusBad.TLabel', background='#3B171C', foreground=UI['red'],
+                     font=FONT_MONO_BOLD, padding=(10, 6))
+        st.configure('Acct.TLabel', background=UI['panel'], foreground=UI['cyan'],
+                     font=FONT_MONO, padding=(10, 6))
+        st.configure('Helper.TLabel', background=UI['panel'], foreground=UI['muted'],
                      font=('Segoe UI', 9))
-        st.map('Test.TButton', background=[('active', '#22303f'), ('disabled', '#1a202b')])
-        st.configure('Save.TButton', background='#2f5d8a', foreground='#ffffff')
-        st.map('Save.TButton', background=[('active', '#3a6ea0'), ('disabled', '#1e2f40')],
-               foreground=[('disabled', '#6d7f92')])
-        st.configure('Accent.TButton', background='#1d4f8a', foreground='#ffffff')
-        st.map('Accent.TButton', background=[('active', '#265f9e')])
-        st.configure('Status.TLabel', background=panel, foreground=fg,
-                     font=('Consolas', 9), padding=(8, 4))
-        st.configure('Acct.TLabel', background=bg, foreground='#7cc4ff',
-                     font=('Consolas', 9, 'bold'))
-        st.configure('Vertical.TSeparator', background='#2a3442')
-        st.configure('Horizontal.TSeparator', background='#2a3442')
+        st.configure('Error.TLabel', background=UI['panel'], foreground=UI['red'],
+                     font=('Segoe UI', 9))
+        st.configure('SectionTitle.TLabel', background=UI['panel'], foreground=UI['text'],
+                     font=FONT_UI_MEDIUM)
+        st.configure('Vertical.TSeparator', background=UI['border'])
+        st.configure('Horizontal.TSeparator', background=UI['border'])
+
+    def _set_dark_titlebar(self):
+        """Use the native dark title bar where Windows exposes that API."""
+        if sys.platform != 'win32':
+            return
+        try:
+            import ctypes
+            hwnd = self.root.winfo_id()
+            value = ctypes.c_int(1)
+            for attr in (20, 19):  # DWMWA_USE_IMMERSIVE_DARK_MODE (Win10/11)
+                result = ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                    hwnd, attr, ctypes.byref(value), ctypes.sizeof(value))
+                if result == 0:
+                    break
+        except Exception:
+            pass
 
     # ── UI skeleton ────────────────────────────────────────────────
     def _build_ui(self):
@@ -963,12 +1038,26 @@ class BotGUI:
             'chat_id': ['telegram'],
             'loop_interval_sec': ['app'],
         }
+        def object_path(target):
+            def walk(node, path):
+                if node is target:
+                    return path
+                if isinstance(node, dict):
+                    for name, child in node.items():
+                        found = walk(child, path + [name])
+                        if found is not None:
+                            return found
+                return None
+            return walk(self.cfg, [])
+
         for obj, keys, var, kind in self._fields:
             v = self._coerce(var.get(), kind)
             if v is None:
                 continue
-            if len(keys) == 1 and keys[0] in REL_PARENT and obj is not cfg:
-                # field dari obj sub-dict (provider/strategy/dll) → tulis ke parent
+            parent_path = object_path(obj)
+            if len(keys) == 1 and parent_path:
+                self._deep_set(cfg, parent_path + keys, v)
+            elif len(keys) == 1 and keys[0] in REL_PARENT and obj is not cfg:
                 self._deep_set(cfg, REL_PARENT[keys[0]] + keys, v)
             else:
                 self._deep_set(cfg, keys, v)
@@ -1154,11 +1243,14 @@ class BotGUI:
 
     # ── tests ──────────────────────────────────────────────────────
     def _test_router(self):
+        # Read Tk variables before entering the worker thread.
+        base = str(self._live_value(['provider', 'base_url'])).rstrip('/')
+        current_env = str(self._live_value(['provider', 'api_key_env']))
+        initial_key = str(self._live_value(['provider', 'api_key']))
+
         def run():
-            base = str(self._live_value(['provider', 'base_url'])).rstrip('/')
+            key = initial_key
             # ── auto-detect API key env var ─────────────────────────────
-            current_env = str(self._live_value(['provider', 'api_key_env']))
-            key = str(self._live_value(['provider', 'api_key']))
             # kalau key kosong → cari dari env var yang dikenal (biar otomatis)
             if not key:
                 candidates = [
@@ -1255,8 +1347,13 @@ class BotGUI:
         threading.Thread(target=run, daemon=True).start()
 
     def _test_tg(self):
+        # Snapshot Tk values on the UI thread; network work runs in background.
+        tok = self._tok_var.get().strip()
+        chat = (self._live_value(['telegram', 'chat_id'])
+                or self._live_value(['chat_id'])
+                or str(self._deep_get(self.cfg, ['telegram', 'chat_id'], '') or ''))
+
         def run():
-            tok = self._tok_var.get().strip()
             if not tok:
                 self._log('❌ Bot Token kosong — isi dulu di tab Telegram.\n')
                 return
@@ -1271,9 +1368,6 @@ class BotGUI:
                 b = data['result']
                 self._log(f"📱 Token OK — bot @{b.get('username')}.\n")
                 # ── uji kirim end-to-end (bukan cuma token) ──────────────
-                chat = (self._live_value(['telegram', 'chat_id'])
-                        or self._live_value(['chat_id'])
-                        or str(self._deep_get(self.cfg, ['telegram', 'chat_id'], '') or ''))
                 if not chat:
                     self._log('❌ Chat ID kosong — isi Chat ID (ID Telegram kamu) di '
                               'tab Telegram, lalu Test lagi.\n')
@@ -1330,6 +1424,7 @@ class BotGUI:
             # live account info
             if self.runner.is_alive() and self.runner.gw:
                 try:
+                    self.var_mt5_status.set('MT5  connected')
                     acct = self.runner.gw.account_summary() or {}
                     pos = self.runner.gw.open_positions() or []
                     pnd = self.runner.gw.pending_orders() or []
@@ -1361,6 +1456,23 @@ class BotGUI:
             pass
 
     def _append_log(self, msg):
+        if hasattr(self, 'var_last_activity'):
+            self.var_last_activity.set(msg.strip().splitlines()[-1][:110] if msg.strip() else 'Ready')
+            low_msg = msg.lower()
+            if 'mt5' in low_msg and any(x in low_msg for x in ('ok', 'terhubung', 'connected')):
+                self.var_mt5_status.set('MT5  connected')
+            elif 'mt5' in low_msg and any(x in low_msg for x in ('gagal', 'error', 'fatal')):
+                self.var_mt5_status.set('MT5  error')
+            if '9router' in low_msg and 'ok' in low_msg:
+                self.var_router_status.set('9Router  connected')
+            elif '9router' in low_msg and any(x in low_msg for x in ('gagal', 'error')):
+                self.var_router_status.set('9Router  error')
+            if ('telegram' in low_msg or 'token ok' in low_msg) and any(
+                    x in low_msg for x in ('terkirim', 'token ok')):
+                self.var_tg_status.set('Telegram  connected')
+            elif ('telegram' in low_msg or 'token' in low_msg) and any(
+                    x in low_msg for x in ('gagal', 'error')):
+                self.var_tg_status.set('Telegram  error')
         self.log.insert('end', msg)
         # warnai baris yang mengandung marker
         low = msg.lower()
@@ -1402,6 +1514,654 @@ class BotGUI:
             self._log('💾 Config otomatis disimpan saat keluar.\n')
         except Exception as e:
             self._log(f'⚠ Config gagal disimpan saat keluar: {e}\n')
+        self.root.destroy()
+
+    # ------------------------------------------------------------------
+    # Modern terminal UI
+    # ------------------------------------------------------------------
+    # These methods intentionally live alongside the original handlers.  They
+    # only compose widgets and read/write the same variables used by the bot.
+    # The runner, config collector, connection tests and all business logic
+    # above remain unchanged.
+
+    def _tooltip(self, widget, text):
+        tip = {'window': None}
+
+        def show(_event=None):
+            if tip['window'] or not widget.winfo_viewable():
+                return
+            x = widget.winfo_rootx() + 8
+            y = widget.winfo_rooty() + widget.winfo_height() + 4
+            win = tk.Toplevel(widget)
+            win.overrideredirect(True)
+            win.configure(bg=UI['border'])
+            tk.Label(win, text=text, bg=UI['border'], fg=UI['text'],
+                     font=('Segoe UI', 9), padx=8, pady=5).pack()
+            win.geometry(f'+{x}+{y}')
+            tip['window'] = win
+
+        def hide(_event=None):
+            if tip['window']:
+                tip['window'].destroy()
+                tip['window'] = None
+
+        widget.bind('<Enter>', show, add='+')
+        widget.bind('<Leave>', hide, add='+')
+
+    def _scroll_tab(self, nb, title):
+        page = ttk.Frame(nb, style='Panel.TFrame')
+        nb.add(page, text=title)
+        viewport = ttk.Frame(page, style='Panel.TFrame')
+        viewport.pack(fill='both', expand=True)
+        canvas = tk.Canvas(viewport, background=UI['panel'], highlightthickness=0,
+                           bd=0)
+        scroll = ttk.Scrollbar(viewport, orient='vertical', command=canvas.yview)
+        content = ttk.Frame(canvas, style='Panel.TFrame')
+        content.columnconfigure(0, weight=1)
+        window_id = canvas.create_window((0, 0), window=content, anchor='nw')
+        canvas.configure(yscrollcommand=scroll.set)
+        content.bind('<Configure>', lambda _e: canvas.configure(
+            scrollregion=canvas.bbox('all')))
+        canvas.bind('<Configure>', lambda e: canvas.itemconfigure(
+            window_id, width=e.width))
+        canvas.pack(side='left', fill='both', expand=True)
+        scroll.pack(side='right', fill='y')
+
+        def wheel(event):
+            canvas.yview_scroll(-1 * int(event.delta / 120), 'units')
+
+        canvas.bind('<Enter>', lambda _e: canvas.bind_all('<MouseWheel>', wheel))
+        canvas.bind('<Leave>', lambda _e: canvas.unbind_all('<MouseWheel>'))
+        return content
+
+    def _section(self, parent, title, description=''):
+        card = ttk.LabelFrame(parent, text=title, style='Card.TLabelframe')
+        card.pack(fill='x', padx=10, pady=6, anchor='n')
+        card.columnconfigure(1, weight=1)
+        card.columnconfigure(2, weight=1)
+        if description:
+            ttk.Label(card, text=description, style='Helper.TLabel',
+                      wraplength=900).grid(row=0, column=0, columnspan=3,
+                                           sticky='w', padx=2, pady=(0, 8))
+        return card
+
+    def _build_ui(self):
+        hdr = ttk.Frame(self.root, style='Panel.TFrame', padding=(18, 14))
+        hdr.pack(fill='x', padx=12, pady=(12, 0))
+        try:
+            base = getattr(sys, '_MEIPASS', ROOT)
+            logo_p = os.path.join(base, 'assets', 'logo.png')
+            if os.path.exists(logo_p):
+                self._logo_img = tk.PhotoImage(file=logo_p).subsample(7, 7)
+                ttk.Label(hdr, image=self._logo_img,
+                          background=UI['panel']).pack(side='left', padx=(0, 12))
+        except Exception:
+            pass
+        brand = ttk.Frame(hdr, style='Panel.TFrame')
+        brand.pack(side='left')
+        ttk.Label(brand, text='AI Trading Bot', style='Header.TLabel').pack(anchor='w')
+        ttk.Label(brand, text='MT5 execution · AI Vision · 9Router',
+                  style='Sub.TLabel').pack(anchor='w')
+        ttk.Label(hdr, text='Desktop terminal', style='StatusMuted.TLabel').pack(
+            side='right', padx=(8, 0))
+        self.lbl_state = ttk.Label(hdr, text='STOPPED', style='StatusMuted.TLabel')
+        self.lbl_state.pack(side='right')
+
+        toolbar = ttk.Frame(self.root, style='Panel.TFrame', padding=(14, 10))
+        toolbar.pack(fill='x', padx=12, pady=(1, 0))
+        self.btn_start = ttk.Button(toolbar, text='Start bot', style='Start.TButton',
+                                    command=self._start_bot)
+        self.btn_start.pack(side='left', padx=(0, 4))
+        self.btn_stop = ttk.Button(toolbar, text='Stop bot', style='Stop.TButton',
+                                   command=self._stop_bot, state='disabled')
+        self.btn_stop.pack(side='left', padx=4)
+        self.btn_restart = ttk.Button(toolbar, text='Restart', style='Restart.TButton',
+                                      command=self._restart_bot, state='disabled')
+        self.btn_restart.pack(side='left', padx=4)
+        ttk.Separator(toolbar, orient='vertical').pack(side='left', fill='y', padx=12)
+        self.btn_save = ttk.Button(toolbar, text='Save configuration', style='Save.TButton',
+                                   command=self._save_clicked)
+        self.btn_save.pack(side='left', padx=4)
+
+        tests = ttk.Frame(toolbar, style='Panel.TFrame')
+        tests.pack(side='right')
+        ttk.Label(tests, text='Connection tests', style='Dim.TLabel').pack(
+            side='left', padx=(0, 8))
+        self.btn_test_router = ttk.Button(tests, text='9Router', style='Test.TButton',
+                                          command=self._test_router)
+        self.btn_test_router.pack(side='left', padx=3)
+        self.btn_test_mt5 = ttk.Button(tests, text='MT5', style='Test.TButton',
+                                       command=self._test_mt5)
+        self.btn_test_mt5.pack(side='left', padx=3)
+        self.btn_test_tg = ttk.Button(tests, text='Telegram', style='Test.TButton',
+                                      command=self._test_tg)
+        self.btn_test_tg.pack(side='left', padx=3)
+        self._test_buttons = [self.btn_test_router, self.btn_test_mt5, self.btn_test_tg]
+        self._tooltip(self.btn_test_router, 'Test endpoint 9Router dan refresh daftar model.')
+        self._tooltip(self.btn_test_mt5, 'Periksa terminal, akun, dan izin trading MT5.')
+        self._tooltip(self.btn_test_tg, 'Verifikasi token dan kirim pesan uji Telegram.')
+
+        nb = ttk.Notebook(self.root)
+        nb.pack(fill='both', expand=True, padx=12, pady=8)
+        self.notebook = nb
+        self._tab_terminal(nb)
+        self._tab_connection(nb)
+        self._tab_symbols(nb)
+        self._tab_risk(nb)
+        self._tab_perpair(nb)
+        self._tab_telegram(nb)
+        self._tab_trademgmt(nb)
+        self._tab_advanced(nb)
+
+        stat = ttk.Frame(self.root, style='Panel.TFrame', padding=(8, 5))
+        stat.pack(fill='x', padx=12, pady=(0, 5))
+        self.var_bot_status = tk.StringVar(value='Bot  stopped')
+        self.var_mt5_status = tk.StringVar(value='MT5  —')
+        self.var_router_status = tk.StringVar(value='9Router  —')
+        self.var_tg_status = tk.StringVar(value='Telegram  —')
+        self.var_last_activity = tk.StringVar(value='Ready')
+        self._status_labels = {
+            'bot': ttk.Label(stat, textvariable=self.var_bot_status,
+                             style='StatusMuted.TLabel'),
+            'mt5': ttk.Label(stat, textvariable=self.var_mt5_status,
+                             style='StatusMuted.TLabel'),
+            'router': ttk.Label(stat, textvariable=self.var_router_status,
+                                style='StatusMuted.TLabel'),
+            'telegram': ttk.Label(stat, textvariable=self.var_tg_status,
+                                  style='StatusMuted.TLabel'),
+        }
+        for label in self._status_labels.values():
+            label.pack(side='left', padx=2)
+        ttk.Label(stat, textvariable=self.var_last_activity,
+                  style='StatusMuted.TLabel').pack(side='right', padx=2)
+        self.var_acct = ttk.Label(self.root, text='MT5  —', style='Acct.TLabel')
+        self.var_acct.pack(fill='x', padx=12, pady=(0, 8))
+
+    def _tab_terminal(self, nb):
+        f = ttk.Frame(nb, style='Panel.TFrame', padding=12)
+        nb.add(f, text='Terminal')
+        bar = ttk.Frame(f, style='Panel.TFrame')
+        bar.pack(fill='x', pady=(0, 8))
+        ttk.Label(bar, text='Runtime output', style='SectionTitle.TLabel').pack(side='left')
+        ttk.Button(bar, text='Clear', style='Test.TButton',
+                   command=lambda: self.log.delete('1.0', 'end')).pack(side='right')
+        ttk.Button(bar, text='Copy all', style='Test.TButton',
+                   command=self._copy_log).pack(side='right', padx=(0, 6))
+        self.log = scrolledtext.ScrolledText(
+            f, bg=UI['terminal'], fg='#C8D3E0', insertbackground='#C8D3E0',
+            font=FONT_MONO, wrap='word', relief='flat', highlightthickness=1,
+            highlightbackground=UI['border'], highlightcolor=UI['blue'])
+        self.log.pack(fill='both', expand=True)
+        self.log.tag_config('ok', foreground=UI['green'])
+        self.log.tag_config('err', foreground=UI['red'])
+        self.log.tag_config('warn', foreground=UI['amber'])
+        self.log.tag_config('info', foreground=UI['cyan'])
+        self.log.insert('end', 'Terminal ready. Start the bot to monitor runtime activity.\n')
+        self.log.see('end')
+
+    def _tab_connection(self, nb):
+        content = self._scroll_tab(nb, 'Connection')
+        p = self.cfg.setdefault('provider', {})
+        v = p.setdefault('vision', {})
+        mt5 = self.cfg.setdefault('mt5', {})
+        app = self.cfg.setdefault('app', {})
+        card = self._section(content, 'MT5 connection',
+                             'Terminal path and scan cadence used by the in-process engine.')
+        self._pair_field(card, 'Terminal path', mt5, ['terminal_path'], 1, width=48)
+        ttk.Button(card, text='Detect terminal and broker symbols', style='Test.TButton',
+                   command=self._auto_detect).grid(row=2, column=1, sticky='w', padx=8, pady=(3, 6))
+        self._pair_field(card, 'Scan interval (sec)', app, ['loop_interval_sec'], 3)
+
+        card = self._section(content, 'AI provider',
+                             'Endpoint, credentials, model and strategy used for signal generation.')
+        self._pair_field(card, '9Router URL', p, ['base_url'], 1, width=40)
+        self._pair_secret(card, 'API key', p, ['api_key'], 2, width=40)
+        self._pair_field(card, 'API key env var', p, ['api_key_env'], 3, width=34)
+        self._pair_combo(card, 'Model', p, ['model'], MODELS, 4, editable=True)
+        self._pair_combo(card, 'Strategy', self.cfg.setdefault('strategy', {}), ['name'],
+                         STRATEGIES, 5, editable=True)
+        self._pair_field(card, 'Custom prompt file', self.cfg['strategy'],
+                         ['custom_prompt_file'], 6, width=34)
+        self._pair_field(card, 'Temperature', p, ['temperature'], 7)
+        self._pair_field(card, 'Timeout (sec)', p, ['timeout_sec'], 8)
+        self._pair_field(card, 'Max tokens', p, ['max_tokens'], 9)
+
+        card = self._section(content, 'Vision chart',
+                             'Chart PNG settings sent to the AI provider. Technical values use a monospace input.')
+        self._pair_check(card, 'Enable vision', v, ['enabled'], 1)
+        self._pair_field(card, 'Candles', v, ['chart_candles'], 2)
+        self._pair_combo(card, 'Timeframe', v, ['chart_timeframe'],
+                         ['M1', 'M5', 'M15', 'M30', 'H1', 'H4'], 3)
+        self._pair_field(card, 'Chart width (px)', v, ['chart_width'], 4)
+        self._pair_field(card, 'Chart height (px)', v, ['chart_height'], 5)
+        self._pair_check(card, 'Overlay indicators', v, ['indicators_overlay'], 6)
+
+    def _tab_symbols(self, nb):
+        content = self._scroll_tab(nb, 'Symbols & timeframes')
+        s = self.cfg.setdefault('mt5', {})
+        st = self.cfg.setdefault('strategy', {})
+        card = self._section(content, 'Symbol universe',
+                             'Choose instruments available to the bot. Extra broker symbols can be typed comma-separated.')
+        self._sym_vars = {}
+        active = set(s.get('symbols', ALL_PAIRS) or [])
+        for i, sym in enumerate(ALL_PAIRS):
+            var = tk.BooleanVar(value=sym in active)
+            self._sym_vars[sym] = var
+            self._centang(card, sym, var).grid(row=1 + i // 3, column=i % 3,
+                                               sticky='w', padx=8, pady=3)
+        extra = [x for x in active if x not in ALL_PAIRS]
+        self._extra_sym_var = tk.StringVar(value=', '.join(extra))
+        ttk.Label(card, text='Additional symbols', style='Dim.TLabel').grid(
+            row=3, column=0, sticky='w', padx=8, pady=(10, 3))
+        ttk.Entry(card, textvariable=self._extra_sym_var, width=34).grid(
+            row=3, column=1, columnspan=2, sticky='ew', padx=8, pady=(10, 3))
+
+        card = self._section(content, 'Active scan subset',
+                             'Optional runtime subset. Empty means the complete universe is scanned.')
+        self._active_vars = {}
+        try:
+            with open(ACTIVE_PAIRS_FILE) as fh:
+                act = set(json.load(fh) or [])
+        except Exception:
+            act = set()
+        for i, sym in enumerate(ALL_PAIRS):
+            var = tk.BooleanVar(value=sym in act)
+            self._active_vars[sym] = var
+            self._centang(card, sym, var).grid(row=1 + i // 3, column=i % 3,
+                                               sticky='w', padx=8, pady=3)
+
+        card = self._section(content, 'Analysis timeframes',
+                             'Timeframes available to the strategy and per-pair confirmation settings.')
+        self._tf_vars = {}
+        tfs = set(st.get('timeframes', ['M5', 'M15', 'M30', 'H1', 'H4']) or [])
+        for i, tf in enumerate(ALL_TFS):
+            var = tk.BooleanVar(value=tf in tfs)
+            self._tf_vars[tf] = var
+            self._centang(card, tf, var).grid(row=1, column=i, sticky='w', padx=5, pady=3)
+        self._deftf_var = tk.StringVar(value=', '.join(st.get('default_timeframes',
+                                                              ['M5', 'M15', 'H1']) or []))
+        ttk.Label(card, text='Default timeframes', style='Dim.TLabel').grid(
+            row=2, column=0, sticky='w', padx=8, pady=(8, 3))
+        ttk.Entry(card, textvariable=self._deftf_var, width=26).grid(
+            row=2, column=1, sticky='ew', padx=8, pady=(8, 3))
+        ttk.Label(card, text='XAUUSD override', style='SectionTitle.TLabel').grid(
+            row=3, column=0, columnspan=3, sticky='w', padx=8, pady=(12, 3))
+        self._xau_tf_vars = {}
+        xau = set(st.get('symbol_timeframes', {}).get('XAUUSD',
+                                                        ['M5', 'M15', 'M30', 'H1', 'H4']) or [])
+        for i, tf in enumerate(ALL_TFS):
+            var = tk.BooleanVar(value=tf in xau)
+            self._xau_tf_vars[tf] = var
+            self._centang(card, tf, var).grid(row=4, column=i, sticky='w', padx=5, pady=3)
+
+        card = self._section(content, 'Data mode')
+        self._pair_combo(card, 'Mode', st, ['data_mode'], ['compact', 'full'], 1, editable=False)
+        self._pair_field(card, 'Tail candles', st, ['compact_tail_last_n'], 2)
+        self._pair_combo(card, 'Tail timeframe', st, ['compact_tail_tf'],
+                         ['M1', 'M5', 'M15', 'M30', 'H1', 'H4'], 3, editable=False)
+
+    def _tab_risk(self, nb):
+        content = self._scroll_tab(nb, 'Risk management')
+        e = self.cfg.setdefault('execution', {})
+        card = self._section(content, 'Position sizing',
+                             'Controls confidence, risk mode and lot sizing before an order is sent.')
+        rows = [('Min confidence (0–1)', 'min_conf_for_entry'),
+                ('Risk per trade (%)', 'risk_percent'), ('Risk mode', 'risk_mode'),
+                ('Fixed lots', 'fixed_lots'), ('Manual lot', 'manual_lot'),
+                ('Lot mode', 'lot_mode'), ('Min risk / reward', 'min_risk_reward'),
+                ('Max lots per trade', 'max_lots_per_trade')]
+        combos = {'risk_mode': ['percent', 'fixed'], 'lot_mode': ['auto', 'manual']}
+        for i, (label, key) in enumerate(rows, 1):
+            if key in combos:
+                self._pair_combo(card, label, e, [key], combos[key], i, editable=False)
+            else:
+                self._pair_field(card, label, e, [key], i)
+        card = self._section(content, 'Exposure limits',
+                             'Global guardrails for spread, correlation, cooldown and daily loss.')
+        rows = [('Max positions / symbol', 'max_open_positions_per_symbol'),
+                ('Max correlated positions', 'max_correlated_positions'),
+                ('Max spread (points)', 'max_spread_points'),
+                ('Max daily loss (%)', 'max_daily_loss_percent'),
+                ('Cooldown (minutes)', 'cooldown_minutes')]
+        for i, (label, key) in enumerate(rows, 1):
+            self._pair_field(card, label, e, [key], i)
+
+    def _tab_perpair(self, nb):
+        content = self._scroll_tab(nb, 'Per-pair settings')
+        e = self.cfg.setdefault('execution', {})
+        rr = e.get('rr_by_symbol', {}) or {}
+        sp = e.get('max_spread_overrides', {}) or {}
+        pd_ = e.get('pending_max_distance_overrides', {}) or {}
+        card = self._section(content, 'Risk / reward and execution overrides',
+                             "Blank uses the global value. Use 'unlimited' for a pair-specific cap without a limit.")
+        headers = ('Pair', 'Min RR', 'Target pips min', 'Target pips max',
+                   'Spread cap', 'Pending distance')
+        for c, h in enumerate(headers):
+            ttk.Label(card, text=h, style='Dim.TLabel').grid(row=1, column=c,
+                                                              sticky='w', padx=6, pady=(0, 5))
+        self._pair_entries = {}
+        for r, sym in enumerate(ALL_PAIRS, 2):
+            info = rr.get(sym, {}) or {}
+            ttk.Label(card, text=sym, style='SectionTitle.TLabel').grid(
+                row=r, column=0, sticky='w', padx=6, pady=3)
+            ents = {}
+            defaults = {'min_rr': str(info.get('min_rr', '')),
+                        'pips_min': str(info.get('target_pips_min', '')),
+                        'pips_max': str(info.get('target_pips_max', '')),
+                        'spread': str(sp.get(sym, '')),
+                        'pdist': str(pd_.get(sym, ''))}
+            for c, key in enumerate(['min_rr', 'pips_min', 'pips_max', 'spread', 'pdist'], 1):
+                var = tk.StringVar(value=defaults[key])
+                ttk.Entry(card, textvariable=var, width=16).grid(
+                    row=r, column=c, sticky='ew', padx=4, pady=3)
+                ents[key] = var
+            self._pair_entries[sym] = ents
+        ttk.Label(card, text="Spread and pending distance accept a number, blank, or 'unlimited'.",
+                  style='Helper.TLabel').grid(row=len(ALL_PAIRS) + 2, column=0,
+                                              columnspan=6, sticky='w', padx=6, pady=(8, 2))
+
+    def _tab_telegram(self, nb):
+        content = self._scroll_tab(nb, 'Telegram')
+        t = self.cfg.setdefault('telegram', {})
+        sc = t.setdefault('send_charts', {})
+        card = self._section(content, 'Telegram connection',
+                             'Notifications, command menu and end-to-end message testing.')
+        self._pair_check(card, 'Enable Telegram', t, ['enabled'], 1)
+        self._pair_secret(card, 'Bot token', t, ['bot_token'], 2, width=42)
+        self._pair_field(card, 'Chat ID', t, ['chat_id'], 3)
+        self._pair_field(card, 'Token env var', t, ['token_env'], 4, width=34)
+        self._pair_field(card, 'Chat ID env var', t, ['chat_id_env'], 5, width=34)
+        ttk.Label(card, text='Token is masked by default. The Test button sends a real message.',
+                  style='Helper.TLabel').grid(row=6, column=1, columnspan=2,
+                                              sticky='w', padx=8, pady=(3, 5))
+        card = self._section(content, 'Chart notifications')
+        self._pair_check(card, 'Send chart when a signal is found', sc, ['enabled'], 1)
+        self._chart_sym_var = tk.StringVar(value=', '.join(sc.get('symbols', ['XAUUSD']) or []))
+        ttk.Label(card, text='Chart symbols', style='Dim.TLabel').grid(
+            row=2, column=0, sticky='w', padx=8, pady=3)
+        ttk.Entry(card, textvariable=self._chart_sym_var, width=34).grid(
+            row=2, column=1, sticky='ew', padx=8, pady=3)
+
+    def _tab_trademgmt(self, nb):
+        content = self._scroll_tab(nb, 'Trade management')
+        tm = self.cfg.setdefault('trade_management', {})
+        for key, value in {'enabled': True, 'use_bep': True, 'bep_aggressive': True,
+                           'bep_trigger_points': 30, 'bep_lock_points': 5,
+                           'use_trailing': True, 'trailing_start_points': 100,
+                           'trailing_step_points': 20, 'evaluate_positions': True,
+                           'position_eval_interval_min': 15, 'partial_tp_enabled': True,
+                           'partial_tp_trigger_fraction': 0.6,
+                           'partial_tp_close_fraction': 0.5}.items():
+            tm.setdefault(key, value)
+        # Preserve the existing cleanup of legacy server keys.
+        sv = self.cfg.get('server', {})
+        for k in ('partial_tp_enabled', 'partial_tp_trigger_fraction',
+                  'partial_tp_close_fraction', 'evaluate_positions', 'position_eval_interval_min',
+                  'use_bep', 'bep_aggressive', 'bep_trigger_points', 'bep_lock_points',
+                  'use_trailing', 'trailing_start_points', 'trailing_step_points'):
+            sv.pop(k, None)
+        card = self._section(content, 'Trade management',
+                             'Automatic protection and position evaluation after entry.')
+        self._pair_check(card, 'Enable trade management', tm, ['enabled'], 1)
+        self._pair_check(card, 'Use breakeven', tm, ['use_bep'], 2)
+        self._pair_check(card, 'Aggressive breakeven', tm, ['bep_aggressive'], 3)
+        self._pair_field(card, 'BE trigger (points)', tm, ['bep_trigger_points'], 4)
+        self._pair_field(card, 'BE lock (points)', tm, ['bep_lock_points'], 5)
+        self._pair_check(card, 'Use trailing stop', tm, ['use_trailing'], 6)
+        self._pair_field(card, 'Trailing start (points)', tm, ['trailing_start_points'], 7)
+        self._pair_field(card, 'Trailing step (points)', tm, ['trailing_step_points'], 8)
+        self._pair_check(card, 'Enable partial take profit', tm, ['partial_tp_enabled'], 9)
+        self._pair_field(card, 'Partial trigger fraction (0–1)', tm,
+                         ['partial_tp_trigger_fraction'], 10)
+        self._pair_field(card, 'Partial close fraction (0–1)', tm,
+                         ['partial_tp_close_fraction'], 11)
+        self._pair_check(card, 'AI position evaluation', tm, ['evaluate_positions'], 12)
+        self._pair_field(card, 'Evaluation interval (minutes)', tm,
+                         ['position_eval_interval_min'], 13)
+
+    def _tab_advanced(self, nb):
+        content = self._scroll_tab(nb, 'Advanced settings')
+        e = self.cfg.setdefault('execution', {})
+        tfil = e.setdefault('time_filter', {})
+        s = self.cfg.setdefault('server', {})
+        card = self._section(content, 'Execution constraints',
+                             'Low-level order limits. Change these only when you understand the broker symbol settings.')
+        rows = [('Magic number', 'magic_number'), ('Slippage (points)', 'slippage_points'),
+                ('Pending max distance (points)', 'pending_max_distance_points'),
+                ('Min SL (points)', 'min_sl_points'), ('Max SL (points)', 'max_sl_points'),
+                ('Min TP (points)', 'min_tp_points'), ('Max TP (points)', 'max_tp_points')]
+        for i, (label, key) in enumerate(rows, 1):
+            self._pair_field(card, label, e, [key], i)
+        ttk.Label(card, text='Allowed order types', style='Dim.TLabel').grid(
+            row=8, column=0, sticky='w', padx=8, pady=(10, 3))
+        aot = set(e.get('allowed_order_types', ['market', 'pending']) or [])
+        self._aot_vars = {}
+        for i, order_type in enumerate(['market', 'pending']):
+            var = tk.BooleanVar(value=order_type in aot)
+            self._aot_vars[order_type] = var
+            self._centang(card, order_type, var).grid(row=8, column=1 + i,
+                                                      sticky='w', padx=8, pady=(10, 3))
+
+        card = self._section(content, 'Time filter',
+                             'Block trading windows using JSON ranges such as [["03:00", "04:00"]].')
+        self._pair_field(card, 'Timezone', tfil, ['timezone'], 1, width=28)
+        br = tfil.get('block_ranges', []) or []
+        self._br_var = tk.StringVar(value=json.dumps(br) if br else '')
+        ttk.Label(card, text='Block ranges (JSON)', style='Dim.TLabel').grid(
+            row=2, column=0, sticky='w', padx=8, pady=3)
+        ttk.Entry(card, textvariable=self._br_var, width=42).grid(
+            row=2, column=1, sticky='ew', padx=8, pady=3)
+        self._br_error = ttk.Label(card, text='', style='Error.TLabel')
+        self._br_error.grid(row=2, column=2, sticky='w', padx=(0, 8), pady=3)
+
+        card = self._section(content, 'Optional server API')
+        self._pair_field(card, 'Host', s, ['host'], 1, width=28)
+        self._pair_field(card, 'Port', s, ['port'], 2)
+        self._pair_field(card, 'API key env var', s, ['api_key_env'], 3, width=34)
+
+    def _pair_field(self, parent, label, obj, keys, row, width=30, show=''):
+        ttk.Label(parent, text=label, style='TLabel').grid(
+            row=row, column=0, sticky='w', padx=8, pady=4)
+        val = self._deep_get(obj, keys, '')
+        var = tk.StringVar(value='' if val is None else str(val))
+        ent = ttk.Entry(parent, textvariable=var, width=width, show=show)
+        ent.grid(row=row, column=1, sticky='ew', padx=8, pady=4)
+        self._fields.append((obj, keys, var, self._kind_of(val)))
+        self._field_errors[id(var)] = ttk.Label(parent, text='', style='Error.TLabel')
+        self._field_errors[id(var)].grid(row=row, column=2, sticky='w', padx=(0, 8), pady=4)
+
+    def _pair_secret(self, parent, label, obj, keys, row, width=30):
+        ttk.Label(parent, text=label, style='TLabel').grid(
+            row=row, column=0, sticky='w', padx=8, pady=4)
+        val = self._deep_get(obj, keys, '')
+        var = tk.StringVar(value='' if val is None else str(val))
+        ent = ttk.Entry(parent, textvariable=var, width=width, show='•')
+        ent.grid(row=row, column=1, sticky='ew', padx=(8, 3), pady=4)
+        if keys == ['bot_token']:
+            # _collect_config and the Telegram test intentionally share this
+            # live variable, just as they did in the original form.
+            self._tok_var = var
+            self._tok_ent = ent
+        shown = {'value': False}
+
+        def toggle():
+            shown['value'] = not shown['value']
+            ent.configure(show='' if shown['value'] else '•')
+            show_btn.configure(text='Hide' if shown['value'] else 'Show')
+
+        show_btn = ttk.Button(parent, text='Show', style='Test.TButton', command=toggle)
+        show_btn.grid(
+            row=row, column=2, sticky='e', padx=(3, 8), pady=4)
+        self._fields.append((obj, keys, var, self._kind_of(val)))
+        self._field_errors[id(var)] = ttk.Label(parent, text='', style='Error.TLabel')
+
+    def _pair_combo(self, parent, label, obj, keys, values, row, editable=True):
+        ttk.Label(parent, text=label, style='TLabel').grid(
+            row=row, column=0, sticky='w', padx=8, pady=4)
+        val = self._deep_get(obj, keys, '')
+        var = tk.StringVar(value='' if val is None else str(val))
+        cmb = ttk.Combobox(parent, textvariable=var, values=values,
+                           state='readonly' if not editable else 'normal', width=27)
+        cmb.grid(row=row, column=1, columnspan=2, sticky='ew', padx=8, pady=4)
+        if not hasattr(self, '_combo_refs'):
+            self._combo_refs = {}
+        self._combo_refs[tuple(keys)] = cmb
+        self._fields.append((obj, keys, var, 'str'))
+
+    def _pair_check(self, parent, label, obj, keys, row):
+        val = bool(self._deep_get(obj, keys, False))
+        var = tk.BooleanVar(value=val)
+        self._centang(parent, label, var).grid(row=row, column=1, columnspan=2,
+                                               sticky='w', padx=8, pady=4)
+        self._fields.append((obj, keys, var, 'bool'))
+
+    def _centang(self, parent, text, var):
+        lbl = tk.Label(parent, text='☐ ' + text, bg=UI['panel'], fg=UI['muted'],
+                       font=FONT_UI, cursor='hand2', anchor='w', takefocus=1,
+                       highlightthickness=1, highlightbackground=UI['panel'],
+                       highlightcolor=UI['blue'])
+
+        def update(*_):
+            on = bool(var.get())
+            lbl.config(text=('☑ ' if on else '☐ ') + text,
+                       fg=UI['blue'] if on else UI['muted'])
+
+        var.trace_add('write', update)
+        lbl.bind('<Button-1>', lambda _e: var.set(not var.get()))
+        lbl.bind('<space>', lambda _e: var.set(not var.get()))
+        lbl.bind('<Return>', lambda _e: var.set(not var.get()))
+        update()
+        return lbl
+
+    def _apply_status(self):
+        st = self._ui_state
+        alive = self.runner.is_alive()
+        if st == 'starting':
+            txt, col, style = 'STARTING', UI['amber'], 'StatusWarn.TLabel'
+        elif st == 'stopping':
+            txt, col, style = 'STOPPING', UI['amber'], 'StatusWarn.TLabel'
+        elif st == 'error':
+            txt, col, style = 'ERROR · check terminal', UI['red'], 'StatusBad.TLabel'
+        elif st == 'running' and alive:
+            txt, col, style = 'RUNNING', UI['green'], 'StatusGood.TLabel'
+        elif st in ('running', 'starting') and not alive:
+            txt, col, style = 'STOPPED', UI['muted'], 'StatusMuted.TLabel'
+            self._ui_state = 'stopped'
+            st = 'stopped'
+        else:
+            txt, col, style = 'STOPPED', UI['muted'], 'StatusMuted.TLabel'
+        self.lbl_state.config(text=txt, foreground=col, style=style)
+        self.var_bot_status.set(f'Bot  {txt.lower()}')
+        self.btn_start.config(state='disabled' if alive or st in ('starting', 'stopping') else 'normal')
+        self.btn_stop.config(state='normal' if alive else 'disabled')
+        self.btn_restart.config(state='normal' if alive else 'disabled')
+
+    def _validate_form(self):
+        """Validate only values that can make a save unusable; errors stay near fields."""
+        for label in self._field_errors.values():
+            label.configure(text='')
+        if hasattr(self, '_br_error'):
+            self._br_error.configure(text='')
+        errors = []
+
+        def value(keys):
+            for _obj, field_keys, var, _kind in self._fields:
+                if field_keys == keys or field_keys == keys[1:]:
+                    return str(var.get()).strip(), var
+            return '', None
+
+        url, url_var = value(['provider', 'base_url'])
+        if url and not urllib.parse.urlparse(url).scheme:
+            errors.append(('9Router URL must include http:// or https://.', url_var))
+        interval, interval_var = value(['app', 'loop_interval_sec'])
+        if interval:
+            try:
+                if float(interval) <= 0:
+                    errors.append(('Must be greater than zero.', interval_var))
+            except ValueError:
+                errors.append(('Enter a number.', interval_var))
+        confidence, conf_var = value(['execution', 'min_conf_for_entry'])
+        if confidence:
+            try:
+                if not 0 <= float(confidence) <= 1:
+                    errors.append(('Use a value between 0 and 1.', conf_var))
+            except ValueError:
+                errors.append(('Enter a number.', conf_var))
+        if self._br_var.get().strip():
+            try:
+                json.loads(self._br_var.get().strip())
+            except json.JSONDecodeError:
+                self._br_error.configure(text='Invalid JSON.')
+                errors.append(('Invalid JSON block range.', None))
+        for message, var in errors:
+            if var is not None and id(var) in self._field_errors:
+                self._field_errors[id(var)].configure(text=message)
+        return not errors
+
+    def _save_config(self, validate=True):
+        if validate and not self._validate_form():
+            raise ValueError('Periksa field yang ditandai merah sebelum menyimpan.')
+        cfg = self._collect_config()
+        _save_cfg(cfg)
+        self.cfg = cfg
+        self._last_activity = 'Configuration saved'
+        if hasattr(self, 'var_last_activity'):
+            self.var_last_activity.set(self._last_activity)
+        self._log('Config saved.\n')
+
+    def _save_clicked(self):
+        try:
+            self._save_config()
+        except Exception as exc:
+            messagebox.showerror('Save failed', str(exc))
+            return
+        messagebox.showinfo('Saved', 'Configuration saved to config.yaml.')
+
+    def _stop_bot(self):
+        if self.runner.is_alive():
+            if not messagebox.askyesno('Stop bot', 'Stop the running bot?'):
+                return
+            self._log('Stop bot requested...\n')
+            self._status('stopping')
+            self.runner.stop()
+            self.root.after(2500, self._force_stop_if_stuck)
+        else:
+            self._log('Bot is not running.\n')
+
+    def _restart_bot(self):
+        if not self.runner.is_alive():
+            self._start_bot()
+            return
+        if not messagebox.askyesno('Restart bot', 'Stop and start the bot again?'):
+            return
+        self._log('Restart requested — reloading configuration...\n')
+        try:
+            self._save_config()
+        except Exception as exc:
+            self._log(f'Config could not be saved during restart: {exc}\n')
+        self._status('stopping')
+        self.runner.stop()
+        self._pending_restart = True
+        self.root.after(2500, self._force_stop_if_stuck)
+        self._watch_restart()
+
+    def _on_close(self):
+        if self.runner.is_alive():
+            if not messagebox.askyesno('Exit', 'Bot is still running. Stop bot and exit?'):
+                return
+            self.runner.stop()
+            t0 = time.time()
+            while self.runner.is_alive() and time.time() - t0 < 3:
+                self.root.update()
+                time.sleep(0.1)
+            if self.runner.is_alive():
+                self.runner.detach()
+        # Closing should never discard the latest edits just because a field is
+        # incomplete; the explicit Save action remains strict and visible.
+        try:
+            self._save_config(validate=False)
+        except Exception as exc:
+            self._log(f'Config could not be auto-saved on exit: {exc}\n')
         self.root.destroy()
 
     def run(self):
