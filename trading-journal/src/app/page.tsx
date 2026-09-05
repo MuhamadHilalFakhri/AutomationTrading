@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BarChart3, BrainCircuit, CalendarDays, CandlestickChart, Check, Database, Radio, RefreshCw, SquareTerminal, Target } from "lucide-react";
 import { FeatureExplorer } from "@/components/landing-feature-explorer";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
-  title: "Trading Journal | Catat. Pahami. Tingkatkan.",
+  title: "Automation Trading | Catat. Pahami. Tingkatkan.",
   description: "Workspace jurnal trading untuk bot MT5. Pantau transaksi, evaluasi PnL, dan telusuri keputusan AI dalam satu tempat.",
 };
 
@@ -22,7 +23,7 @@ export default function LandingPage() {
       <div className={styles.announcement}><span>BUILT FOR MT5</span> Dari aktivitas bot menjadi insight yang berarti. <a href="#cara-kerja">Kenali workspace <ArrowRight size={13} /></a></div>
       <div className={styles.atmosphere}>
         <header className={`${styles.container} ${styles.header}`}>
-          <Link href="/" className={styles.brand} aria-label="Trading Journal beranda"><CandlestickChart aria-hidden="true" size={30} /><span>trading<span className={styles.brandLight}>journal</span><span className={styles.brandDot}>.</span></span></Link>
+          <Link href="/" className={styles.brand} aria-label="Automation Trading beranda"><Image src="/LogoAT.png" alt="Logo Automation Trading" width={30} height={30} className="h-[30px] w-[30px] object-contain rounded-md" priority /><span>automation<span className={styles.brandLight}>trading</span><span className={styles.brandDot}>.</span></span></Link>
           <nav aria-label="Navigasi landing page" className={styles.nav}><a href="#fitur">Workspace</a><a href="#cara-kerja">Cara kerja</a><a href="#faq">FAQ</a></nav>
           <Link href="/dashboard" className={styles.primary}>Buka Dashboard <ArrowUpRight size={16} /></Link>
         </header>
@@ -71,7 +72,7 @@ export default function LandingPage() {
           <section className={`${styles.container} ${styles.principles}`} aria-label="Cakupan workspace"><div><strong>MT5</strong><span>Sumber data trading</span></div><div><strong>BUY / SELL / HOLD</strong><span>Jejak keputusan bot</span></div><div><strong>WIB</strong><span>Konteks waktu jurnal</span></div><div><strong>1 workspace</strong><span>Monitoring hingga evaluasi</span></div></section>
 
           <section id="faq" className={`${styles.container} ${styles.faqSection}`} aria-labelledby="faq-title"><div><p className={styles.kicker}>03 / SEBELUM MEMULAI</p><h2 id="faq-title">Kenali jurnal<br />trading Anda.</h2><p>Alat untuk memahami proses.<br />Bukan janji hasil trading.</p></div><div className={styles.faqs}>
-            <details><summary>Apa itu Trading Journal?<span>+</span></summary><p>Trading Journal adalah workspace untuk memantau bot MT5, meninjau riwayat transaksi, membaca kalender PnL, dan mengevaluasi performa berdasarkan simbol maupun strategi.</p></details>
+            <details><summary>Apa itu Automation Trading?<span>+</span></summary><p>Automation Trading adalah workspace untuk memantau bot MT5, meninjau riwayat transaksi, membaca kalender PnL, dan mengevaluasi performa berdasarkan simbol maupun strategi.</p></details>
             <details><summary>Apakah aplikasi ini menjalankan trading AI?<span>+</span></summary><p>Aplikasi ini menampilkan aktivitas dan keputusan dari bot MT5 yang terhubung. Keputusan AI beserta confidence dan alasannya dicatat untuk ditinjau, bukan dihasilkan oleh landing page ini.</p></details>
             <details><summary>Bagaimana data diperbarui?<span>+</span></summary><p>Event bot diterima melalui live feed. Data MT5 dapat disinkronkan secara manual atau berkala melalui Pengaturan. Ketersediaan data bergantung pada konfigurasi integrasi dan terminal MT5 Anda.</p></details>
             <details><summary>Apakah angka di halaman ini hasil trading nyata?<span>+</span></summary><p>Tidak. Kartu di atas menggunakan data ilustrasi untuk menunjukkan jenis informasi yang tersedia. Dashboard menampilkan data dari integrasi Anda. Performa masa lalu tidak menjamin hasil di masa depan.</p></details>
@@ -80,7 +81,7 @@ export default function LandingPage() {
           <section className={`${styles.container} ${styles.finalCta}`}><div className={styles.eyebrow}><Radio size={15} /> A CLEARER VIEW STARTS HERE</div><h2>Setiap transaksi punya cerita.<br /><span>Mulai membacanya.</span></h2><p>Buka workspace Anda dan lihat trading dari perspektif yang lebih lengkap.</p><div className={styles.actions}><Link href="/dashboard" className={styles.primary}>Buka Dashboard <ArrowUpRight size={17} /></Link><Link href="/settings" className={styles.secondary}>Atur integrasi MT5 <ArrowRight size={16} /></Link></div></section>
         </main>
       </div>
-      <footer className={`${styles.container} ${styles.footer}`}><Link href="/" className={styles.brand}><CandlestickChart size={24} /><span>trading<span className={styles.brandLight}>journal</span>.</span></Link><p>Jurnal yang jelas. Evaluasi yang terarah.</p><a href="#faq">Trading memiliki risiko <ArrowUpRight size={13} /></a><span>&copy; {new Date().getFullYear()} Trading Journal</span></footer>
+      <footer className={`${styles.container} ${styles.footer}`}><Link href="/" className={styles.brand}><Image src="/LogoAT.png" alt="Logo Automation Trading" width={24} height={24} className="h-6 w-6 object-contain rounded-md" /><span>automation<span className={styles.brandLight}>trading</span>.</span></Link><p>Jurnal yang jelas. Evaluasi yang terarah.</p><a href="#faq">Trading memiliki risiko <ArrowUpRight size={13} /></a><span>&copy; {new Date().getFullYear()} Automation Trading</span></footer>
     </div>
   );
 }

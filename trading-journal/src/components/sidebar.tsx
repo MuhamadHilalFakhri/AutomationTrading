@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -71,10 +72,17 @@ function NavLinks({ onNavigate, collapsed = false }: { onNavigate?: () => void; 
 
 function Brand({ collapsed = false }: { collapsed?: boolean }) {
   return (
-    <Link href="/dashboard" aria-label="Trading Journal" className={cn("flex min-w-0 items-center py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", collapsed ? "gap-0 px-1" : "gap-2 px-4")}>
-      <CandlestickChart aria-hidden="true" className="h-7 w-7 shrink-0 text-signal" />
+    <Link href="/dashboard" aria-label="Automation Trading" className={cn("flex min-w-0 items-center py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", collapsed ? "gap-0 px-1 justify-center" : "gap-2.5 px-4")}>
+      <Image
+        src="/LogoAT.png"
+        alt="Logo Automation Trading"
+        width={32}
+        height={32}
+        className="h-8 w-8 shrink-0 object-contain rounded-md"
+        priority
+      />
       <span className={cn("min-w-0", collapsed && "sr-only")}>
-        <span className="block text-[18px] font-bold tracking-[-0.06em] text-foreground">trading<span className="font-normal">journal</span><span className="text-signal">.</span></span>
+        <span className="block text-[17px] font-bold tracking-[-0.05em] text-foreground">automation<span className="font-normal">trading</span><span className="text-signal">.</span></span>
         <span className="block text-[10px] text-muted-foreground">MT5 workspace</span>
       </span>
     </Link>
@@ -144,8 +152,15 @@ export function Sidebar() {
     <>
       <header className="glass-nav fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b px-4 lg:hidden">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <CandlestickChart aria-hidden="true" className="h-6 w-6 text-signal" />
-          <span className="text-xl font-bold tracking-[-0.06em] text-foreground">trading<span className="font-normal">journal</span><span className="text-signal">.</span></span>
+          <Image
+            src="/LogoAT.png"
+            alt="Logo Automation Trading"
+            width={28}
+            height={28}
+            className="h-7 w-7 shrink-0 object-contain rounded-md"
+            priority
+          />
+          <span className="text-xl font-bold tracking-[-0.05em] text-foreground">automation<span className="font-normal">trading</span><span className="text-signal">.</span></span>
         </Link>
         <button type="button" onClick={() => setOpen(true)} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-signal text-signal transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Buka menu">
           <Menu className="h-5 w-5" />

@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { ChartWorkspace } from "@/components/chart-workspace";
 
 export const metadata: Metadata = {
-  title: "Market Chart — Trading Journal",
+  title: "Market Chart — Automation Trading",
   description: "Chart pasar real-time untuk forex, metal, crypto, dan indeks.",
 };
 

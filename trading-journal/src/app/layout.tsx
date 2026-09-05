@@ -9,6 +9,7 @@ const inter = Inter({
   display: "swap",
 });
 
+
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
@@ -16,11 +17,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trading Journal — MT5 AI Bot",
+  title: "Automation Trading — MT5 AI Bot",
   description: "Live journal untuk MT5 AI trading bot",
   icons: {
-    icon: [{ url: "/icon-32.png", sizes: "32x32", type: "image/png" }],
-    apple: "/icon-256.png",
+    icon: [{ url: "/LogoAT.png", type: "image/png" }],
+    shortcut: "/LogoAT.png",
+    apple: "/LogoAT.png",
   },
 };
 
