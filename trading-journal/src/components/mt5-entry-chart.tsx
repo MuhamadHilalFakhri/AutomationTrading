@@ -60,8 +60,7 @@ const TIMEFRAMES = [
 
 type ChartTimeframe = (typeof TIMEFRAMES)[number]["value"];
 
-const ENTRY_BUY_COLOR = "#38bdf8";
-const ENTRY_SELL_COLOR = "#ff453a";
+const ENTRY_COLOR = "#6ae4ff";
 
 function money(value: number) {
   const sign = value > 0 ? "+" : "";
@@ -151,7 +150,7 @@ function buildTradeMarkers(candles: Mt5Candle[], trades: Trade[]): SeriesMarker<
           price,
           position: "atPriceMiddle" as const,
           shape: "circle" as const,
-          color: group.pnl >= 0 ? "#34d399" : "#fb7185",
+          color: group.pnl >= 0 ? "#ffffff" : "#cdd0d6",
           text: `EXIT${count} ${money(group.pnl)}`,
           size: 1,
         };
@@ -164,7 +163,7 @@ function buildTradeMarkers(candles: Mt5Candle[], trades: Trade[]): SeriesMarker<
         price,
         position: isBuy ? ("atPriceBottom" as const) : ("atPriceTop" as const),
         shape: isBuy ? ("arrowUp" as const) : ("arrowDown" as const),
-        color: isBuy ? ENTRY_BUY_COLOR : ENTRY_SELL_COLOR,
+        color: ENTRY_COLOR,
         text: `${group.side}${count} @ ${price.toFixed(2)}`,
         size: 1.4,
       };
@@ -191,28 +190,30 @@ function TradeCandlestickChart({
     const container = containerRef.current;
     if (!container) return;
 
+    // Canvas needs the resolved Next font family, not a CSS var() expression.
+    const interFont = getComputedStyle(container).getPropertyValue("--font-inter").trim();
     const chart = createChart(container, {
       width: container.clientWidth,
       height: container.clientHeight,
       layout: {
-        background: { type: ColorType.Solid, color: "#070b12" },
-        textColor: "#94a3b8",
-        fontFamily: "var(--font-jetbrains-mono), ui-monospace, monospace",
+        background: { type: ColorType.Solid, color: "#17202e" },
+        textColor: "#cdd0d6",
+        fontFamily: interFont ? `${interFont}, Inter, sans-serif` : "Inter, sans-serif",
         fontSize: 12,
         attributionLogo: true,
       },
       grid: {
-        vertLines: { color: "rgba(148, 163, 184, 0.055)" },
-        horzLines: { color: "rgba(148, 163, 184, 0.055)" },
+        vertLines: { color: "rgba(205,208,214,.12)" },
+        horzLines: { color: "rgba(205,208,214,.12)" },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
-        vertLine: { color: "rgba(96, 165, 250, 0.45)", labelBackgroundColor: "#1d4ed8" },
-        horzLine: { color: "rgba(96, 165, 250, 0.45)", labelBackgroundColor: "#1d4ed8" },
+        vertLine: { color: "#6ae4ff", labelBackgroundColor: "#202a3e" },
+        horzLine: { color: "#6ae4ff", labelBackgroundColor: "#202a3e" },
       },
-      rightPriceScale: { borderColor: "rgba(148, 163, 184, 0.15)", scaleMargins: { top: 0.08, bottom: 0.12 } },
+      rightPriceScale: { borderColor: "rgba(205,208,214,.15)", scaleMargins: { top: 0.08, bottom: 0.12 } },
       timeScale: {
-        borderColor: "rgba(148, 163, 184, 0.15)",
+        borderColor: "rgba(205,208,214,.15)",
         timeVisible: true,
         secondsVisible: false,
         rightOffset: 8,
@@ -235,12 +236,12 @@ function TradeCandlestickChart({
     });
 
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#059669",
-      downColor: "#be123c",
+      upColor: "#ffffff",
+      downColor: "#cdd0d6",
       borderVisible: false,
-      wickUpColor: "#10b981",
-      wickDownColor: "#e11d48",
-      priceLineColor: "#60a5fa",
+      wickUpColor: "#ffffff",
+      wickDownColor: "#cdd0d6",
+      priceLineColor: "#6ae4ff",
       priceFormat: { type: "price", precision: digits, minMove: 10 ** -digits },
     });
     const markers = createSeriesMarkers(series, []);
@@ -289,7 +290,7 @@ function TradeCandlestickChart({
       .slice(0, 12)
       .map((trade) => series.createPriceLine({
         price: trade.entry as number,
-        color: trade.side.toUpperCase().startsWith("BUY") ? ENTRY_BUY_COLOR : ENTRY_SELL_COLOR,
+        color: ENTRY_COLOR,
         lineWidth: 2,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
@@ -412,37 +413,34 @@ export function Mt5EntryChart() {
   };
 
   return (
-    <div className="space-y-3">
-      <section aria-label="Kontrol chart entry MT5" className="glass-panel relative z-20 rounded-xl px-3 py-3 sm:px-4">
+    <div className="space-y-3 font-sans text-foreground">
+      <section aria-label="Kontrol chart entry MT5" className="relative z-20 rounded-xl border border-black bg-card px-3 py-3 shadow-none sm:px-4">
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
           <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
             <div className="flex min-w-0 items-center gap-2.5 sm:shrink-0">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-blue-400/15 bg-blue-500/10 text-blue-300">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-divider bg-transparent text-muted-foreground">
                 <Server className="h-[18px] w-[18px]" />
               </span>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-medium text-slate-100">Eksekusi MT5</h2>
-                  <Badge variant="outline" className={cn(
-                    "h-5 text-[10px]",
-                    error ? "border-red-400/15 bg-red-500/10 text-red-300" : "border-emerald-400/15 bg-emerald-500/10 text-emerald-300",
-                  )}>
+                  <h2 className="text-sm font-medium text-foreground">Eksekusi MT5</h2>
+                  <Badge variant="outline" className="h-5 border-divider bg-transparent text-[10px] text-muted-foreground">
                     {error ? <WifiOff /> : <Wifi />}
                     {error ? "TERPUTUS" : "LIVE"}
                   </Badge>
                 </div>
-                <p className="truncate text-xs text-slate-500">Candle broker dan posisi dari terminal yang sama</p>
+                <p className="truncate text-xs text-muted-foreground">Candle broker dan posisi dari terminal yang sama</p>
               </div>
             </div>
 
             <Select value={symbol} onValueChange={(value) => value && changeSymbol(value)}>
-              <SelectTrigger aria-label="Pilih symbol MT5" className="h-9 w-full border-slate-700/70 bg-slate-950/80 text-slate-200 sm:w-[180px]">
-                <CandlestickChart className="h-3.5 w-3.5 text-slate-500" />
-                <SelectValue><span className="font-mono font-medium">{symbol}</span></SelectValue>
+              <SelectTrigger aria-label="Pilih symbol MT5" className="h-9 w-full rounded-full border border-signal bg-transparent! text-muted-foreground shadow-none! focus-visible:border-signal focus-visible:ring-ring sm:w-[180px]">
+                <CandlestickChart className="h-3.5 w-3.5 text-muted-foreground" />
+                <SelectValue><span className="font-sans font-medium">{symbol}</span></SelectValue>
               </SelectTrigger>
-              <SelectContent align="start" className="solid-popover min-w-[180px]">
+              <SelectContent align="start" className="min-w-[180px] border border-black! bg-card! font-sans text-muted-foreground shadow-none! backdrop-blur-none! [&_[data-slot=select-scroll-up-button]]:bg-card [&_[data-slot=select-scroll-down-button]]:bg-card">
                 {symbols.map((item) => (
-                  <SelectItem key={item} value={item} className="py-2 font-mono text-slate-200 focus:bg-slate-800">
+                  <SelectItem key={item} value={item} className="rounded-full py-2 text-muted-foreground focus:bg-transparent focus:text-muted-foreground focus:ring-1 focus:ring-ring data-highlighted:ring-1 data-highlighted:ring-ring data-selected:bg-foreground data-selected:text-black not-data-[variant=destructive]:focus:**:text-inherit">
                     {item}
                   </SelectItem>
                 ))}
@@ -452,7 +450,7 @@ export function Mt5EntryChart() {
 
           <div className="flex min-w-0 items-center gap-2">
             <div className="scrollbar-subtle min-w-0 flex-1 overflow-x-auto" aria-label="Pilih timeframe MT5">
-              <div className="flex min-w-max items-center gap-1 rounded-lg border border-white/[0.06] bg-slate-950/80 p-1">
+              <div className="flex min-w-max items-center gap-1 rounded-full border border-divider bg-background p-1">
                 {TIMEFRAMES.map((item) => (
                   <Button
                     key={item.value}
@@ -462,8 +460,8 @@ export function Mt5EntryChart() {
                     aria-pressed={timeframe === item.value}
                     onClick={() => changeTimeframe(item.value)}
                     className={cn(
-                      "h-7 min-w-9 px-2 font-mono text-xs text-slate-500 hover:bg-slate-800 hover:text-slate-200",
-                      timeframe === item.value && "bg-blue-500/15 text-blue-300 ring-1 ring-inset ring-blue-400/20 hover:bg-blue-500/20 hover:text-blue-200",
+                      "h-7 min-w-9 rounded-full bg-transparent px-2 font-sans text-xs text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground hover:ring-1 hover:ring-signal focus-visible:border-signal focus-visible:ring-ring",
+                      timeframe === item.value && "bg-foreground text-black hover:bg-foreground hover:text-black",
                     )}
                   >
                     {item.label}
@@ -471,19 +469,19 @@ export function Mt5EntryChart() {
                 ))}
               </div>
             </div>
-            <Button type="button" variant="outline" size="icon" aria-label="Muat ulang chart MT5" onClick={refresh}>
+            <Button type="button" variant="outline" size="icon" className="rounded-full border-signal bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground focus-visible:border-signal focus-visible:ring-ring" aria-label="Muat ulang chart MT5" onClick={refresh}>
               <RefreshCw className={cn(loading && "animate-spin")} />
             </Button>
           </div>
         </div>
       </section>
 
-      <section aria-label="Chart posisi MT5" className="solid-data overflow-hidden rounded-xl border">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-white/[0.07] bg-slate-950/90 px-3 py-2 text-xs sm:px-4">
-          <span className="font-mono font-semibold text-slate-200">{symbol}</span>
-          <span className="text-slate-500"><span className="font-mono text-slate-300">{visibleTradeCount}</span> entry terlihat</span>
-          <span className="text-slate-500"><span className="font-mono text-amber-300">{openCount}</span> posisi terbuka</span>
-          <span className="ml-auto text-slate-600">
+      <section aria-label="Chart posisi MT5" className="overflow-hidden rounded-xl border border-black bg-background shadow-none">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-divider bg-card px-3 py-2 text-xs sm:px-4">
+          <span className="font-semibold text-foreground">{symbol}</span>
+          <span className="text-muted-foreground"><span className="tabular-nums text-foreground">{visibleTradeCount}</span> entry terlihat</span>
+          <span className="text-muted-foreground"><span className="tabular-nums text-foreground">{openCount}</span> posisi terbuka</span>
+          <span className="ml-auto text-muted-foreground">
             {lastUpdated ? `Diperbarui ${lastUpdated.toLocaleTimeString("id-ID", { hour12: false, timeZone: "Asia/Jakarta" })} WIB` : "Menunggu data MT5"}
           </span>
         </div>
@@ -494,22 +492,22 @@ export function Mt5EntryChart() {
           )}
 
           {loading && candles.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#070b12]" role="status">
+            <div className="absolute inset-0 flex items-center justify-center bg-background" role="status">
               <div className="text-center">
-                <Activity className="mx-auto h-5 w-5 animate-pulse text-blue-400" />
-                <p className="mt-3 text-sm font-medium text-slate-200">Mengambil candle dari MT5</p>
-                <p className="mt-1 text-xs text-slate-500">Menyelaraskan entry dengan waktu broker...</p>
+                <Activity className="mx-auto h-5 w-5 animate-pulse text-signal" />
+                <p className="mt-3 text-sm font-medium text-foreground">Mengambil candle dari MT5</p>
+                <p className="mt-1 text-xs text-muted-foreground">Menyelaraskan entry dengan waktu broker...</p>
               </div>
             </div>
           )}
 
           {error && candles.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#070b12] px-5" role="alert">
+            <div className="absolute inset-0 flex items-center justify-center bg-background px-5" role="alert">
               <div className="max-w-md text-center">
-                <WifiOff className="mx-auto h-6 w-6 text-red-300" />
-                <h3 className="mt-3 text-base font-semibold text-slate-100">Data MT5 belum tersedia</h3>
-                <p className="mt-1.5 text-sm leading-6 text-slate-400">{error}</p>
-                <Button type="button" variant="outline" className="mt-4" onClick={refresh}>
+                <WifiOff className="mx-auto h-6 w-6 text-muted-foreground" />
+                <h3 className="mt-3 text-base font-semibold text-foreground">Data MT5 belum tersedia</h3>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{error}</p>
+                <Button type="button" variant="outline" className="mt-4 rounded-full border-signal bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground focus-visible:border-signal focus-visible:ring-ring" onClick={refresh}>
                   <RefreshCw /> Coba lagi
                 </Button>
               </div>
@@ -517,19 +515,20 @@ export function Mt5EntryChart() {
           )}
 
           {error && candles.length > 0 && (
-            <div className="absolute left-3 top-3 z-10 rounded-lg border border-amber-400/15 bg-slate-950/95 px-3 py-2 text-xs text-amber-200 shadow-lg" role="status">
+            <div className="absolute left-3 top-3 z-10 rounded-lg border border-black bg-card px-3 py-2 text-xs text-muted-foreground shadow-none" role="status">
               Feed tertunda · {error}
             </div>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/[0.07] bg-slate-950/90 px-3 py-2 text-[11px] text-slate-500 sm:px-4">
-          <span className="inline-flex items-center gap-1 text-sky-300"><ArrowUp className="h-3.5 w-3.5" />BUY entry</span>
-          <span className="inline-flex items-center gap-1 text-[#ff6b63]"><ArrowDown className="h-3.5 w-3.5" />SELL entry</span>
-          <span className="inline-flex items-center gap-1.5 text-slate-500">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            <span className="-ml-2 h-2 w-2 translate-x-1.5 rounded-full bg-rose-400" />
-            EXIT profit/loss
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-divider bg-card px-3 py-2 text-[11px] text-muted-foreground sm:px-4">
+          <span className="inline-flex items-center gap-1 text-signal"><ArrowUp className="h-3.5 w-3.5" />BUY entry</span>
+          <span className="inline-flex items-center gap-1 text-signal"><ArrowDown className="h-3.5 w-3.5" />SELL entry</span>
+          <span className="inline-flex items-center gap-1.5 text-foreground">
+            <span className="h-2 w-2 rounded-full bg-foreground" />EXIT + profit
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <span className="h-2 w-2 rounded-full bg-muted-foreground" />EXIT - loss
           </span>
           <span className="ml-auto">
             Chart by{" "}
@@ -537,7 +536,7 @@ export function Mt5EntryChart() {
               href="https://www.tradingview.com/"
               target="_blank"
               rel="noopener nofollow noreferrer"
-              className="font-medium text-blue-400 transition-colors hover:text-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+              className="font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               TradingView Lightweight Charts™
             </a>

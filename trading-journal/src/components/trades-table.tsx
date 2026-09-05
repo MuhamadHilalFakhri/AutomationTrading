@@ -29,25 +29,25 @@ export function TradesTable({ className }: { className?: string }) {
 
   if (trades.length === 0) {
     return (
-      <div className={cn("flex flex-col items-center justify-center py-16 text-slate-500", className)}>
-        <Minus className="mb-2 h-8 w-8 text-slate-600" />
+      <div className={cn("flex flex-col items-center justify-center py-16 text-muted-foreground", className)}>
+        <Minus className="mb-2 h-8 w-8 text-muted-foreground" />
         <p className="text-sm">Belum ada trade</p>
       </div>
     );
   }
 
   const statusColor: Record<string, string> = {
-    open: "border-emerald-400/20 bg-emerald-500/10 text-emerald-300",
-    closed: "border-slate-700 bg-slate-800 text-slate-300",
-    pending: "border-amber-400/20 bg-amber-500/10 text-amber-300",
-    rejected: "border-red-400/20 bg-red-500/10 text-red-300",
+    open: "border-border bg-background text-positive",
+    closed: "border-border bg-background text-muted-foreground",
+    pending: "border-border bg-background text-warning",
+    rejected: "border-border bg-background text-negative",
   };
 
   return (
     <div className={cn("overflow-x-auto", className)}>
       <table className="w-full min-w-[760px] text-[13px]">
-        <thead className="bg-slate-900/70">
-          <tr className="border-b border-slate-800 text-xs tracking-normal text-slate-500">
+        <thead className="bg-background">
+          <tr className="border-b border-divider text-xs tracking-normal text-muted-foreground">
             <th className="py-3 pr-2 text-left font-medium">Symbol</th>
             <th className="px-2 py-3 text-left font-medium">Side</th>
             <th className="text-right py-2 px-2 font-medium">Lots</th>
@@ -66,44 +66,44 @@ export function TradesTable({ className }: { className?: string }) {
             const sideLower = t.side?.toLowerCase() ?? "";
             const isLong = sideLower.startsWith("buy");
             return (
-              <tr key={t.id} className="border-b border-slate-800/70 transition-colors hover:bg-blue-500/[0.04]">
-                <td className="py-3 pr-2 font-mono font-semibold text-slate-200">{t.symbol}</td>
+              <tr key={t.id} className="border-b border-divider transition-colors hover:bg-background">
+                <td className="py-3 pr-2 font-mono font-semibold text-foreground">{t.symbol}</td>
                 <td className="py-2 px-2">
                   <span className={cn(
                     "flex items-center gap-1 font-medium",
-                    isLong ? "text-emerald-400" : "text-red-400",
+                    isLong ? "text-buy" : "text-sell",
                   )}>
                     {isLong ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                     {t.side}
                   </span>
                 </td>
-                <td className="px-2 py-3 text-right font-mono text-slate-300">{fmtNum(t.lots)}</td>
-                <td className="px-2 py-3 text-right font-mono text-slate-300">{fmtNum(t.entry)}</td>
-                <td className="px-2 py-3 text-right font-mono text-slate-500">{fmtNum(t.sl)}</td>
-                <td className="px-2 py-3 text-right font-mono text-slate-500">{fmtNum(t.tp)}</td>
+                <td className="px-2 py-3 text-right font-mono text-foreground">{fmtNum(t.lots)}</td>
+                <td className="px-2 py-3 text-right font-mono text-foreground">{fmtNum(t.entry)}</td>
+                <td className="px-2 py-3 text-right font-mono text-muted-foreground">{fmtNum(t.sl)}</td>
+                <td className="px-2 py-3 text-right font-mono text-muted-foreground">{fmtNum(t.tp)}</td>
                 <td className={cn(
                   "px-2 py-3 text-right font-mono font-semibold",
-                  profit != null && profit > 0 ? "text-emerald-400" :
-                    profit != null && profit < 0 ? "text-red-400" : "text-zinc-500",
+                  profit != null && profit > 0 ? "text-positive" :
+                    profit != null && profit < 0 ? "text-negative" : "text-muted-foreground",
                 )}>
                   {profit != null ? `${profit >= 0 ? "+" : ""}${fmtMoney(profit)}` : "-"}
                 </td>
                 <td className="px-2 py-3">
-                  <Badge variant="outline" className={cn("capitalize", statusColor[t.status] ?? "text-slate-400")}>{t.status}</Badge>
+                  <Badge variant="outline" className={cn("rounded-full capitalize", statusColor[t.status] ?? "text-muted-foreground")}>{t.status}</Badge>
                 </td>
                 <td className="px-2 py-3">
                   <Badge variant="outline" className={cn(
-                    "text-[10px] font-medium",
+                    "rounded-full text-[10px] font-medium",
                     t.source === "mt5"
-                      ? "border-sky-400/20 bg-sky-500/10 text-sky-300"
+                      ? "border-border bg-background text-signal"
                       : t.source === "bot+mt5"
-                        ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300"
-                        : "border-slate-700 bg-slate-900 text-slate-400",
+                        ? "border-border bg-background text-positive"
+                        : "border-border bg-background text-muted-foreground",
                   )}>
                     {t.source === "mt5" ? "MT5" : t.source === "bot+mt5" ? "BOT+MT5" : "BOT"}
                   </Badge>
                 </td>
-                <td className="py-3 pl-2 text-slate-500">{t.openTs ? fmtTime(t.openTs) : "-"}</td>
+                <td className="py-3 pl-2 font-mono text-muted-foreground">{t.openTs ? fmtTime(t.openTs) : "-"}</td>
               </tr>
             );
           })}

@@ -6,15 +6,15 @@ import { fmtTime } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const KIND_STYLE: Record<string, { color: string; label: string }> = {
-  scan: { color: "text-amber-500", label: "SCAN" },
-  decision: { color: "text-sky-400", label: "DECISION" },
-  executed: { color: "text-emerald-400", label: "EXEC" },
-  failed: { color: "text-red-400", label: "FAIL" },
-  risk_block: { color: "text-red-400", label: "RISK" },
-  close: { color: "text-amber-400", label: "CLOSE" },
-  pnl: { color: "text-emerald-400", label: "PNL" },
-  status: { color: "text-slate-400", label: "STATUS" },
-  error: { color: "text-red-400", label: "ERROR" },
+  scan: { color: "text-warning", label: "SCAN" },
+  decision: { color: "text-signal", label: "DECISION" },
+  executed: { color: "text-positive", label: "EXEC" },
+  failed: { color: "text-negative", label: "FAIL" },
+  risk_block: { color: "text-warning", label: "RISK" },
+  close: { color: "text-muted-foreground", label: "CLOSE" },
+  pnl: { color: "text-foreground", label: "PNL" },
+  status: { color: "text-muted-foreground", label: "STATUS" },
+  error: { color: "text-negative", label: "ERROR" },
 };
 
 function describeEvent(ev: JournalEvent): string {
@@ -67,21 +67,21 @@ export function Terminal({ events, className }: { events: JournalEvent[]; classN
     <div
       ref={boxRef}
       className={cn(
-        "solid-data scrollbar-subtle h-full overflow-y-auto rounded-lg p-4 font-mono text-xs leading-relaxed",
+        "solid-data scrollbar-subtle h-full overflow-y-auto rounded-[15px] p-4 font-mono text-xs leading-relaxed",
         className,
       )}
     >
       {events.length === 0 ? (
-        <p className="text-slate-500">Menunggu aktivitas bot...</p>
+        <p className="text-muted-foreground">Menunggu aktivitas bot...</p>
       ) : (
         <div className="flex flex-col-reverse gap-0.5">
           {events.map((ev) => {
-            const style = KIND_STYLE[ev.kind] ?? { color: "text-zinc-400", label: ev.kind.toUpperCase() };
+            const style = KIND_STYLE[ev.kind] ?? { color: "text-muted-foreground", label: ev.kind.toUpperCase() };
             return (
-              <div key={ev.id} className="flex gap-2 border-b border-slate-900/80 py-1">
-                <span className="shrink-0 text-slate-500">{fmtTime(ev.ts)}</span>
+              <div key={ev.id} className="flex gap-2 border-b border-divider py-1">
+                <span className="shrink-0 text-muted-foreground">{fmtTime(ev.ts)}</span>
                 <span className={cn("w-20 shrink-0 font-semibold", style.color)}>{style.label}</span>
-                <span className="min-w-0 break-words text-zinc-300">{describeEvent(ev)}</span>
+                <span className="min-w-0 break-words text-foreground">{describeEvent(ev)}</span>
               </div>
             );
           })}

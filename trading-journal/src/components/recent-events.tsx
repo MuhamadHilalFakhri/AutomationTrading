@@ -5,15 +5,15 @@ import { fmtTime } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const KIND_STYLE: Record<string, { color: string; label: string }> = {
-  scan: { color: "text-amber-500", label: "SCAN" },
-  decision: { color: "text-sky-400", label: "DECISION" },
-  executed: { color: "text-emerald-400", label: "EXEC" },
-  failed: { color: "text-red-400", label: "FAIL" },
-  risk_block: { color: "text-red-400", label: "RISK" },
-  close: { color: "text-amber-400", label: "CLOSE" },
-  pnl: { color: "text-emerald-400", label: "PNL" },
-  status: { color: "text-slate-400", label: "STATUS" },
-  error: { color: "text-red-400", label: "ERROR" },
+  scan: { color: "text-warning", label: "SCAN" },
+  decision: { color: "text-signal", label: "DECISION" },
+  executed: { color: "text-positive", label: "EXEC" },
+  failed: { color: "text-negative", label: "FAIL" },
+  risk_block: { color: "text-warning", label: "RISK" },
+  close: { color: "text-muted-foreground", label: "CLOSE" },
+  pnl: { color: "text-foreground", label: "PNL" },
+  status: { color: "text-muted-foreground", label: "STATUS" },
+  error: { color: "text-negative", label: "ERROR" },
 };
 
 export function describeEvent(ev: JournalEvent): string {
@@ -58,7 +58,7 @@ function fmtMoneySafe(v: unknown): string {
 export function RecentEvents({ events }: { events: JournalEvent[] }) {
   if (!events.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-slate-500">
+      <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
         <p className="text-sm">Menunggu aktivitas bot...</p>
       </div>
     );
@@ -66,13 +66,13 @@ export function RecentEvents({ events }: { events: JournalEvent[] }) {
   return (
     <div className="flex flex-col gap-2.5">
       {events.slice(0, 40).map((ev) => {
-        const style = KIND_STYLE[ev.kind] ?? { color: "text-zinc-400", label: ev.kind.toUpperCase() };
+        const style = KIND_STYLE[ev.kind] ?? { color: "text-muted-foreground", label: ev.kind.toUpperCase() };
         return (
-          <div key={ev.id} className="flex items-start gap-2 border-b border-slate-800/70 pb-2.5 last:border-0">
-            <span className="shrink-0 font-mono text-[11px] text-slate-500">{fmtTime(ev.ts)}</span>
+          <div key={ev.id} className="flex items-start gap-2 border-b border-divider pb-2.5 last:border-0">
+            <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{fmtTime(ev.ts)}</span>
             <span className={cn("w-16 shrink-0 text-[11px] font-semibold", style.color)}>{style.label}</span>
-            <span className="min-w-0 flex-1 text-[13px] leading-5 text-slate-300">
-              {ev.symbol && <span className="font-mono text-slate-400">{ev.symbol} </span>}
+            <span className="min-w-0 flex-1 text-[13px] leading-5 text-foreground">
+              {ev.symbol && <span className="font-mono text-muted-foreground">{ev.symbol} </span>}
               {describeEvent(ev)}
             </span>
           </div>

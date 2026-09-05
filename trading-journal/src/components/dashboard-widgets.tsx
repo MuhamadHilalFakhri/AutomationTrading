@@ -19,14 +19,14 @@ export function WidgetCard({
   bodyClassName?: string;
 }) {
   return (
-    <Card className={cn("min-h-0 gap-2 py-4", className)}>
-      <CardHeader className="border-b border-slate-800/70 px-5 pb-3 [.border-b]:pb-3">
-        <CardTitle className="text-sm font-semibold text-slate-100">
+    <Card className={cn("min-h-0 gap-2 rounded-[15px] border border-border bg-card py-4 shadow-none ring-0", className)}>
+      <CardHeader className="border-b border-divider px-5 pb-3 [.border-b]:pb-3">
+        <CardTitle className="text-sm font-semibold text-foreground">
           {title}
         </CardTitle>
         {href && (
           <CardAction>
-            <a href={href} className="flex items-center gap-1.5 text-xs font-medium text-slate-500 transition-colors hover:text-blue-300">
+            <a href={href} className="flex items-center gap-1.5 rounded-full text-xs font-medium text-muted-foreground transition-colors hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               {hrefLabel ?? "Lihat"} <ArrowRight className="h-3 w-3" />
             </a>
           </CardAction>
@@ -39,11 +39,11 @@ export function WidgetCard({
 
 function WidgetMetric({ label, value, color, icon }: { label: string; value: string; color?: string; icon?: React.ReactNode }) {
   return (
-    <div className="glass-inset flex items-center gap-2.5 rounded-lg px-3 py-2.5">
-      {icon && <span className="text-blue-300/75">{icon}</span>}
+    <div className="glass-inset flex items-center gap-2.5 rounded-[15px] px-3 py-2.5">
+      {icon && <span className="text-signal">{icon}</span>}
       <div className="min-w-0">
-        <p className="text-xs font-medium tracking-normal text-slate-500">{label}</p>
-        <p className={cn("truncate font-mono text-base font-semibold leading-tight", color ?? "text-slate-100")}>{value}</p>
+        <p className="text-xs font-medium tracking-normal text-muted-foreground">{label}</p>
+        <p className={cn("truncate font-sans text-base font-semibold leading-tight tracking-tight tabular-nums", color ?? "text-foreground")}>{value}</p>
       </div>
     </div>
   );
@@ -83,7 +83,7 @@ export function AnalitikWidget({ className }: { className?: string }) {
   if (loading) {
     return (
       <WidgetCard title="Analitik" href="/analitik" className={className}>
-        <div className="flex h-full items-center justify-center text-sm text-slate-500">Memuat analitik...</div>
+        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Memuat analitik...</div>
       </WidgetCard>
     );
   }
@@ -91,22 +91,22 @@ export function AnalitikWidget({ className }: { className?: string }) {
   return (
     <WidgetCard title="Analitik" href="/analitik" className={className}>
       {closed.length === 0 ? (
-        <div className="flex h-full items-center justify-center text-sm text-slate-500">Belum ada trade closed</div>
+        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Belum ada trade closed</div>
       ) : (
         <div className="flex flex-col gap-2.5">
           <div className="grid grid-cols-2 gap-2.5">
-            <WidgetMetric icon={<BarChart3 className="h-4 w-4" />} label="Net Profit" value={fmtMoney(net)} color={net >= 0 ? "text-emerald-400" : "text-red-400"} />
+            <WidgetMetric icon={<BarChart3 className="h-4 w-4" />} label="Net Profit" value={fmtMoney(net)} color={net >= 0 ? "text-positive" : "text-negative"} />
             <WidgetMetric icon={<Target className="h-4 w-4" />} label="Win Rate" value={`${winRate.toFixed(1)}%`} />
             <WidgetMetric icon={<TrendingUp className="h-4 w-4" />} label="Profit Factor" value={pf === Infinity ? "∞" : pf.toFixed(2)} />
             <WidgetMetric icon={<TrendingDown className="h-4 w-4" />} label="Total Closed" value={String(closed.length)} />
           </div>
           {top && (
-            <div className="glass-inset flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-xs">
-              <span className="text-slate-500">Top symbol</span>
-              <span className="font-mono font-semibold text-slate-200">{top[0]}</span>
+            <div className="glass-inset flex items-center justify-between gap-3 rounded-[15px] px-3 py-2.5 text-xs">
+              <span className="text-muted-foreground">Top symbol</span>
+              <span className="font-mono font-semibold text-foreground">{top[0]}</span>
               <span className="flex items-center gap-2">
                 <Badge variant="outline" className="font-mono text-[10px]">{top[1].total} trade</Badge>
-                <span className={cn("font-mono font-semibold", top[1].pnl >= 0 ? "text-emerald-400" : "text-red-400")}>
+                <span className={cn("font-mono font-semibold", top[1].pnl >= 0 ? "text-positive" : "text-negative")}>
                   {fmtMoney(top[1].pnl)}
                 </span>
               </span>

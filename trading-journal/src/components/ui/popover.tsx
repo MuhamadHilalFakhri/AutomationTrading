@@ -33,7 +33,7 @@ function PopoverContent({
         <PopoverPrimitive.Popup
           data-slot="popover-content"
           className={cn(
-            "glass-panel relative w-auto origin-(--transform-origin) rounded-xl p-1 text-popover-foreground outline-none duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+            "relative w-auto max-w-[calc(100vw-2rem)] origin-(--transform-origin) rounded-[15px] border border-border bg-popover p-1 text-popover-foreground shadow-none outline-none duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
             className,
           )}
           {...props}

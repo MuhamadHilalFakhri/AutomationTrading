@@ -52,33 +52,33 @@ export function PnlCalendar() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between gap-2">
-        <button type="button" onClick={prevMonth} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70" aria-label="Bulan sebelumnya">
+        <button type="button" onClick={prevMonth} className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-foreground hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Bulan sebelumnya">
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <span className="text-sm font-semibold capitalize text-slate-100">{name}</span>
-        <button type="button" onClick={nextMonth} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70" aria-label="Bulan berikutnya">
+        <span className="text-sm font-semibold capitalize text-foreground">{name}</span>
+        <button type="button" onClick={nextMonth} className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-foreground hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Bulan berikutnya">
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
       <div className="mb-4 grid grid-cols-3 gap-2 text-center text-xs">
-        <div className="glass-inset rounded-lg p-2.5">
-          <div className={cn("font-mono font-semibold", monthPnl >= 0 ? "text-emerald-300" : "text-red-300")}>{fmtMoney(monthPnl)}</div>
-          <div className="mt-1 text-slate-500">Monthly PnL</div>
+        <div className="glass-inset rounded-[15px] p-2.5">
+          <div className={cn("font-sans font-semibold tracking-tight tabular-nums", monthPnl >= 0 ? "text-positive" : "text-negative")}>{fmtMoney(monthPnl)}</div>
+          <div className="mt-1 text-muted-foreground">Monthly PnL</div>
         </div>
-        <div className="glass-inset rounded-lg p-2.5">
-          <div className="font-mono font-semibold text-slate-100">{monthTrades}</div>
-          <div className="mt-1 text-slate-500">Trades</div>
+        <div className="glass-inset rounded-[15px] p-2.5">
+          <div className="font-sans font-semibold tracking-tight tabular-nums text-foreground">{monthTrades}</div>
+          <div className="mt-1 text-muted-foreground">Trades</div>
         </div>
-        <div className="glass-inset rounded-lg p-2.5">
-          <div className="font-mono font-semibold text-slate-100">{monthTrades ? Math.round((monthWins / monthTrades) * 100) + "%" : "0%"}</div>
-          <div className="mt-1 text-slate-500">Win Rate</div>
+        <div className="glass-inset rounded-[15px] p-2.5">
+          <div className="font-sans font-semibold tracking-tight tabular-nums text-foreground">{monthTrades ? Math.round((monthWins / monthTrades) * 100) + "%" : "0%"}</div>
+          <div className="mt-1 text-muted-foreground">Win Rate</div>
         </div>
       </div>
 
       <div className="grid grid-cols-7 gap-1.5 text-xs">
         {dayHeaders.map((d) => (
-          <div key={d} className="py-1 text-center text-[11px] font-medium text-slate-500">{d}</div>
+          <div key={d} className="py-1 text-center text-[11px] font-medium text-muted-foreground">{d}</div>
         ))}
         {Array.from({ length: startDow }).map((_, i) => (
           <div key={`empty-${i}`} />
@@ -93,18 +93,17 @@ export function PnlCalendar() {
             <div
               key={d}
               className={cn(
-                "flex aspect-[5/4] flex-col items-center justify-center rounded-lg border p-1",
-                isToday ? "border-blue-400/60" : "border-slate-800/60",
-                info && pnl > 0 ? "bg-emerald-500/10" : info && pnl < 0 ? "bg-red-500/10" : "bg-slate-950/35",
+                "flex aspect-[5/4] flex-col items-center justify-center rounded-[15px] border bg-background p-1 tabular-nums",
+                isToday ? "border-signal" : "border-border",
               )}
             >
-              <span className={cn("font-medium", isToday ? "text-blue-300" : "text-slate-400")}>{d}</span>
+              <span className={cn("font-medium", isToday ? "text-signal" : "text-muted-foreground")}>{d}</span>
               {info ? (
                 <>
-                  <span className={cn("text-[10px] leading-none", pnl >= 0 ? "text-emerald-300" : "text-red-300")}>
-                    {pnl >= 0 ? "+" : ""}${Math.abs(pnl).toFixed(0)}
+                  <span className={cn("text-[10px] leading-none", pnl >= 0 ? "text-positive" : "text-negative")}>
+                    {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(0)}
                   </span>
-                  <span className="text-[10px] text-slate-500 leading-none">{info.tradeCount}t</span>
+                  <span className="text-[10px] text-muted-foreground leading-none">{info.tradeCount}t</span>
                 </>
               ) : (
                 <span className="text-[9px] leading-none">&nbsp;</span>

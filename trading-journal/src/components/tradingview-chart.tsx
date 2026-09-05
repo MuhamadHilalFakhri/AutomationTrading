@@ -87,8 +87,9 @@ function TradingViewEmbed({
       theme: "dark",
       style: "1",
       locale: "en",
-      backgroundColor: "#070B12",
-      gridColor: "rgba(148, 163, 184, 0.07)",
+      // The hosted widget supports these colors, but not custom candle/font overrides.
+      backgroundColor: "#17202e",
+      gridColor: "rgba(205,208,214,.12)",
       allow_symbol_change: true,
       calendar: false,
       details: false,
@@ -122,34 +123,34 @@ function TradingViewEmbed({
   }, [interval, retryKey, symbol]);
 
   return (
-    <div className="relative h-full min-h-0 bg-[#070b12]">
+    <div className="relative h-full min-h-0 bg-background">
       <div ref={containerRef} className="tradingview-widget-container h-full w-full" />
 
       {status === "loading" && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#070b12]" role="status" aria-live="polite">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background" role="status" aria-live="polite">
           <div className="flex flex-col items-center gap-3 text-center">
-            <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/15 bg-blue-500/10">
-              <CandlestickChart className="h-5 w-5 animate-pulse text-blue-400" />
+            <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-divider bg-card">
+              <CandlestickChart className="h-5 w-5 animate-pulse text-signal" />
             </span>
             <div>
-              <p className="text-sm font-medium text-slate-200">Memuat data pasar</p>
-              <p className="mt-1 text-xs text-slate-500">Menghubungkan chart ke TradingView...</p>
+              <p className="text-sm font-medium text-foreground">Memuat data pasar</p>
+              <p className="mt-1 text-xs text-muted-foreground">Menghubungkan chart ke TradingView...</p>
             </div>
           </div>
         </div>
       )}
 
       {status === "error" && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#070b12] px-5" role="alert">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background px-5" role="alert">
           <div className="max-w-md text-center">
-            <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-amber-400/15 bg-amber-500/10">
-              <Activity className="h-5 w-5 text-amber-300" />
+            <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-divider bg-card">
+              <Activity className="h-5 w-5 text-muted-foreground" />
             </span>
-            <h2 className="mt-4 text-base font-semibold text-slate-100">Chart belum dapat dimuat</h2>
-            <p className="mt-1.5 text-sm leading-6 text-slate-400">
+            <h2 className="mt-4 text-base font-semibold text-foreground">Chart belum dapat dimuat</h2>
+            <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
               Periksa koneksi internet atau pemblokir konten, lalu coba hubungkan kembali.
             </p>
-            <Button type="button" variant="outline" className="mt-4" onClick={() => setRetryKey((value) => value + 1)}>
+            <Button type="button" variant="outline" className="mt-4 rounded-full border-signal bg-transparent text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground focus-visible:border-signal focus-visible:ring-ring" onClick={() => setRetryKey((value) => value + 1)}>
               <RefreshCw />
               Muat ulang chart
             </Button>
@@ -170,40 +171,40 @@ export function TradingViewChart() {
   const tradingViewSlug = symbol.replace(":", "-");
 
   return (
-    <div className="space-y-3">
-      <section aria-label="Kontrol chart" className="glass-panel relative z-20 rounded-xl px-3 py-3 sm:px-4">
+    <div className="space-y-3 font-sans text-foreground">
+      <section aria-label="Kontrol chart" className="relative z-20 rounded-xl border border-black bg-card px-3 py-3 shadow-none sm:px-4">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
             <div className="flex min-w-0 items-center gap-2.5 sm:shrink-0">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-blue-400/15 bg-blue-500/10 text-blue-300">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-divider bg-transparent text-muted-foreground">
                 <CandlestickChart className="h-[18px] w-[18px]" />
               </span>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-medium text-slate-100">Instrumen</h2>
-                  <Badge variant="outline" className="h-5 border-emerald-400/15 bg-emerald-500/10 text-[10px] text-emerald-300">
+                  <h2 className="text-sm font-medium text-foreground">Instrumen</h2>
+                  <Badge variant="outline" className="h-5 border-divider bg-transparent text-[10px] text-muted-foreground">
                     MARKET DATA
                   </Badge>
                 </div>
-                <p className="truncate text-xs text-slate-500">{selectedPair.description}</p>
+                <p className="truncate text-xs text-muted-foreground">{selectedPair.description}</p>
               </div>
             </div>
 
             <Select value={symbol} onValueChange={(value) => value && setSymbol(value)}>
-              <SelectTrigger aria-label="Pilih pair market" className="h-9 w-full border-slate-700/70 bg-slate-950/80 text-slate-200 sm:w-[210px]">
-                <Search className="h-3.5 w-3.5 text-slate-500" />
+              <SelectTrigger aria-label="Pilih pair market" className="h-9 w-full rounded-full border border-signal bg-transparent! text-muted-foreground shadow-none! focus-visible:border-signal focus-visible:ring-ring sm:w-[210px]">
+                <Search className="h-3.5 w-3.5 text-muted-foreground" />
                 <SelectValue>
-                  <span className="font-mono font-medium">{selectedPair.label}</span>
+                  <span className="font-sans font-medium">{selectedPair.label}</span>
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent align="start" className="solid-popover w-[280px]">
+              <SelectContent align="start" className="w-[280px] border border-black! bg-card! font-sans text-muted-foreground shadow-none! backdrop-blur-none! [&_[data-slot=select-scroll-up-button]]:bg-card [&_[data-slot=select-scroll-down-button]]:bg-card">
                 {PAIR_GROUPS.map((group) => (
                   <SelectGroup key={group}>
                     <SelectLabel>{group}</SelectLabel>
                     {MARKET_PAIRS.filter((pair) => pair.group === group).map((pair) => (
-                      <SelectItem key={pair.symbol} value={pair.symbol} className="py-2 text-slate-200 focus:bg-slate-800">
-                        <span className="w-[78px] font-mono text-xs font-medium text-slate-100">{pair.label}</span>
-                        <span className="truncate text-xs text-slate-500">{pair.description}</span>
+                      <SelectItem key={pair.symbol} value={pair.symbol} className="rounded-full py-2 text-muted-foreground focus:bg-transparent focus:text-muted-foreground focus:ring-1 focus:ring-ring data-highlighted:ring-1 data-highlighted:ring-ring data-selected:bg-foreground data-selected:text-black not-data-[variant=destructive]:focus:**:text-inherit">
+                        <span className="w-[78px] text-xs font-medium">{pair.label}</span>
+                        <span className="truncate text-xs">{pair.description}</span>
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -213,7 +214,7 @@ export function TradingViewChart() {
           </div>
 
           <div className="scrollbar-subtle -mx-1 overflow-x-auto px-1" aria-label="Pilih timeframe">
-            <div className="flex min-w-max items-center gap-1 rounded-lg border border-white/[0.06] bg-slate-950/80 p-1">
+            <div className="flex min-w-max items-center gap-1 rounded-full border border-divider bg-background p-1">
               {TIMEFRAMES.map((timeframe) => (
                 <Button
                   key={timeframe.value}
@@ -223,8 +224,8 @@ export function TradingViewChart() {
                   aria-pressed={interval === timeframe.value}
                   onClick={() => setIntervalValue(timeframe.value)}
                   className={cn(
-                    "h-7 min-w-9 px-2 font-mono text-xs text-slate-500 hover:bg-slate-800 hover:text-slate-200",
-                    interval === timeframe.value && "bg-blue-500/15 text-blue-300 ring-1 ring-inset ring-blue-400/20 hover:bg-blue-500/20 hover:text-blue-200",
+                    "h-7 min-w-9 rounded-full bg-transparent px-2 font-sans text-xs text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground hover:ring-1 hover:ring-signal focus-visible:border-signal focus-visible:ring-ring",
+                    interval === timeframe.value && "bg-foreground text-black hover:bg-foreground hover:text-black",
                   )}
                 >
                   {timeframe.label}
@@ -235,18 +236,18 @@ export function TradingViewChart() {
         </div>
       </section>
 
-      <section aria-label="Chart pasar real-time" className="solid-data overflow-hidden rounded-xl border">
+      <section aria-label="Chart pasar real-time" className="overflow-hidden rounded-xl border border-black bg-background shadow-none">
         <div className="h-[600px] min-h-[500px] sm:h-[660px] lg:h-[calc(100dvh-18.5rem)] lg:min-h-[500px]">
           <TradingViewEmbed symbol={symbol} interval={interval} />
         </div>
 
-        <div className="flex flex-col gap-1 border-t border-white/[0.07] bg-slate-950/90 px-3 py-2 text-[11px] text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+        <div className="flex flex-col gap-1 border-t border-divider bg-card px-3 py-2 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-4">
           <span>Data real-time atau tertunda mengikuti bursa dan kebijakan penyedia.</span>
           <a
             href={`https://www.tradingview.com/symbols/${tradingViewSlug}/`}
             target="_blank"
             rel="noopener nofollow noreferrer"
-            className="font-medium text-blue-400 transition-colors hover:text-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+            className="font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {selectedPair.label} chart by TradingView
           </a>

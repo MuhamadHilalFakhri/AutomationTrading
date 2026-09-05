@@ -30,11 +30,11 @@ export default function TerminalPage() {
 
       {/* status bot */}
       {bot && !bot.online && (
-        <div role="alert" className="glass-inset mb-4 flex items-start gap-3 rounded-xl bg-red-500/10 px-4 py-3 text-sm ring-red-400/20">
-          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-300" />
+        <div role="alert" className="glass-inset mb-4 flex items-start gap-3 rounded-[15px] px-4 py-3 text-sm">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
           <div>
-            <p className="font-medium text-red-200">Bot tidak berjalan</p>
-            <p className="mt-0.5 text-[13px] leading-5 text-red-200/70">
+            <p className="font-medium text-foreground">Bot tidak berjalan</p>
+            <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">
               Tidak ada aktivitas sejak {fmtAge(bot.ageSec)}.
               Pastikan bot MT5 menyala di device trading.
             </p>
@@ -42,14 +42,14 @@ export default function TerminalPage() {
         </div>
       )}
       {bot?.online && (
-        <div className="mb-4 flex items-center gap-2 text-[13px] text-emerald-300/85">
+        <div className="mb-4 flex items-center gap-2 text-[13px] text-positive">
           <CheckCircle2 className="h-4 w-4" />
           Bot aktif — aktivitas terakhir {fmtAge(bot.ageSec)}
         </div>
       )}
 
       {/* filter pills */}
-      <div className="glass-panel mb-4 flex flex-wrap items-center gap-1.5 rounded-xl p-2">
+      <div className="glass-panel mb-4 flex flex-wrap items-center gap-1.5 rounded-[15px] p-2">
         {kinds.map((k) => (
           <button
             key={k}
@@ -58,17 +58,17 @@ export default function TerminalPage() {
             aria-pressed={filter === k}
             className={
               filter === k
-                ? "min-h-8 rounded-lg bg-blue-500/15 px-3 text-[13px] font-medium text-blue-200 ring-1 ring-inset ring-blue-400/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
-                : "min-h-8 rounded-lg px-3 text-[13px] text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+                ? "min-h-8 rounded-full border border-border bg-foreground px-3 text-[13px] font-medium text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                : "min-h-8 rounded-full border border-border px-3 text-[13px] text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             }
           >
             {k === "all" ? "Semua" : k}
           </button>
         ))}
-        <span className="ml-auto self-center px-2 text-xs text-slate-500">{filtered.length} event</span>
+        <span className="ml-auto self-center px-2 text-xs text-muted-foreground">{filtered.length} event</span>
       </div>
 
-      <div className="solid-data min-h-0 flex-1 overflow-hidden rounded-xl border p-2">
+      <div className="solid-data min-h-0 flex-1 overflow-hidden rounded-[15px] border border-border p-2">
         <Terminal events={filtered.slice(0, 300)} className="h-full" />
       </div>
     </div>

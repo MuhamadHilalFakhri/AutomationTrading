@@ -7,6 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-signal: var(--signal);
+  --color-divider: var(--divider);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-buy: var(--buy);
+  --color-sell: var(--sell);
+  --color-warning: var(--warning);
   --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-heading: var(--font-sans);
@@ -49,38 +56,47 @@
 :root,
 .dark {
   --sidebar-width: 16rem;
-  --background: oklch(0.105 0.018 255);
-  --foreground: oklch(0.96 0.008 255);
-  --card: oklch(0.17 0.024 255 / 78%);
-  --card-foreground: oklch(0.96 0.008 255);
-  --popover: oklch(0.19 0.026 255 / 94%);
-  --popover-foreground: oklch(0.96 0.008 255);
-  --primary: oklch(0.63 0.19 255);
-  --primary-foreground: oklch(0.98 0.008 255);
-  --secondary: oklch(0.245 0.026 255);
-  --secondary-foreground: oklch(0.9 0.012 255);
-  --muted: oklch(0.22 0.026 255);
-  --muted-foreground: oklch(0.68 0.02 255);
-  --accent: oklch(0.26 0.04 255);
-  --accent-foreground: oklch(0.96 0.008 255);
-  --destructive: oklch(0.67 0.19 25);
-  --border: oklch(0.46 0.028 255 / 42%);
-  --input: oklch(0.38 0.028 255 / 68%);
-  --ring: oklch(0.7 0.16 255);
-  --chart-1: oklch(0.68 0.17 255);
-  --chart-2: oklch(0.7 0.16 165);
-  --chart-3: oklch(0.75 0.16 85);
-  --chart-4: oklch(0.68 0.18 25);
-  --chart-5: oklch(0.72 0.14 310);
-  --sidebar: oklch(0.09 0.018 255 / 86%);
-  --sidebar-foreground: oklch(0.86 0.012 255);
-  --sidebar-primary: oklch(0.67 0.18 255);
-  --sidebar-primary-foreground: oklch(0.98 0.008 255);
-  --sidebar-accent: oklch(0.22 0.035 255);
-  --sidebar-accent-foreground: oklch(0.96 0.008 255);
-  --sidebar-border: oklch(0.46 0.028 255 / 38%);
-  --sidebar-ring: oklch(0.7 0.16 255);
-  --radius: 0.75rem;
+  --background: #17202e;
+  --foreground: #ffffff;
+  --card: #202a3e;
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: var(--foreground);
+  --primary-foreground: #000000;
+  --secondary: var(--card);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--card);
+  --muted-foreground: #cdd0d6;
+  --accent: var(--background);
+  --accent-foreground: var(--foreground);
+  --signal: #6ae4ff;
+  --divider: rgb(205 208 214 / 15%);
+  /* Outcomes retain their signs and labels without adding accent hues. */
+  --positive: var(--foreground);
+  --negative: var(--muted-foreground);
+  --buy: var(--foreground);
+  --sell: var(--muted-foreground);
+  --warning: var(--muted-foreground);
+  --destructive: var(--muted-foreground);
+  --border: #000000;
+  --input: var(--divider);
+  --ring: var(--signal);
+  --chart-1: var(--signal);
+  --chart-2: var(--foreground);
+  --chart-3: var(--muted-foreground);
+  --chart-4: var(--card);
+  --chart-5: var(--background);
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--muted-foreground);
+  --sidebar-primary: var(--foreground);
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: var(--card);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--signal);
+  --radius: 15px;
+  color-scheme: dark;
 }
 
 @layer base {
@@ -88,67 +104,55 @@
   html { @apply scroll-smooth; }
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
-    background-image: radial-gradient(circle at 18% -10%, rgb(37 99 235 / 0.10), transparent 28rem), radial-gradient(circle at 96% 12%, rgb(14 165 233 / 0.06), transparent 24rem);
-    background-attachment: fixed;
     font-size: 15px;
     line-height: 1.55;
-    letter-spacing: -0.005em;
+    letter-spacing: -0.025em;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.036em;
     text-wrap: balance;
   }
   button, select, input, textarea {
     font: inherit;
   }
   button, a, select, input, textarea { -webkit-tap-highlight-color: transparent; }
-  ::selection { background: oklch(0.55 0.17 255 / 35%); }
+  ::selection { background: var(--signal); color: #000; }
 
   .font-mono,
   .tabular-nums {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1, "zero" 1;
-    letter-spacing: -0.015em;
+    letter-spacing: normal;
   }
 }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .glass-panel {
-    background: color-mix(in oklch, var(--card) 84%, transparent);
-    border: 1px solid rgb(255 255 255 / 0.075);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.045), 0 18px 44px rgb(0 0 0 / 0.14);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: var(--card);
+    border: 1px solid var(--border);
   }
   .glass-inset {
-    background: rgb(15 23 42 / 0.58);
-    border: 1px solid rgb(255 255 255 / 0.06);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.025);
+    background: var(--background);
+    border: 1px solid var(--border);
   }
   .glass-nav {
-    background: rgb(7 11 18 / 0.78);
-    border-color: rgb(255 255 255 / 0.08);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 12px 36px rgb(0 0 0 / 0.16);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--sidebar);
+    border-color: var(--sidebar-border);
   }
   .solid-data {
-    background: rgb(7 11 18 / 0.88);
-    border-color: rgb(255 255 255 / 0.075);
+    background: var(--background);
+    border-color: var(--border);
   }
   .solid-popover {
-    background: #0f172a;
-    border: 1px solid rgb(148 163 184 / 0.22);
-    box-shadow: 0 18px 45px rgb(0 0 0 / 0.34), inset 0 1px 0 rgb(255 255 255 / 0.05);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    background: var(--popover);
+    border: 1px solid var(--border);
   }
   .scrollbar-subtle {
-    scrollbar-color: oklch(0.38 0.025 255) transparent;
+    scrollbar-color: var(--muted-foreground) transparent;
     scrollbar-width: thin;
   }
 }
@@ -161,13 +165,5 @@
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-@supports not ((backdrop-filter: blur(1px))) {
-  .glass-panel,
-  .glass-inset,
-  .glass-nav {
-    background: rgb(15 23 42 / 0.96);
   }
 }

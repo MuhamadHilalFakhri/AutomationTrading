@@ -51,12 +51,12 @@ function DateFilter({
       <PopoverTrigger
         type="button"
         aria-label={label}
-        className="glass-inset inline-flex h-9 min-w-[148px] items-center justify-start gap-2 rounded-lg border-white/10 px-3 text-left text-[13px] text-slate-200 transition-colors hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+        className={cn("inline-flex h-9 min-w-[148px] items-center justify-start gap-2 rounded-full border border-border px-3 text-left text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", value ? "bg-foreground text-black" : "bg-background text-muted-foreground hover:text-foreground")}
       >
-        <CalendarDays className="h-4 w-4 shrink-0 text-blue-300" />
-        <span className={cn(!value && "text-slate-500")}>{dateLabel(value, label)}</span>
+        <CalendarDays className={cn("h-4 w-4 shrink-0", !value && "text-signal")} />
+        <span>{dateLabel(value, label)}</span>
       </PopoverTrigger>
-      <PopoverContent align="start" className="solid-popover p-0">
+      <PopoverContent align="start" className="solid-popover rounded-[15px] border-border bg-card p-0 shadow-none">
         <Calendar mode="single" selected={value} onSelect={onSelect} disabled={disabled} />
       </PopoverContent>
     </Popover>
@@ -99,10 +99,10 @@ export default function TradesPage() {
   const winRate = closed.length ? Math.round((wins / closed.length) * 1000) / 10 : 0;
 
   const statusColor: Record<string, string> = {
-    open: "border-emerald-400/20 bg-emerald-500/10 text-emerald-300",
-    closed: "border-slate-700 bg-slate-800 text-slate-300",
-    pending: "border-amber-400/20 bg-amber-500/10 text-amber-300",
-    rejected: "border-red-400/20 bg-red-500/10 text-red-300",
+    open: "border-border bg-background text-positive",
+    closed: "border-border bg-background text-muted-foreground",
+    pending: "border-border bg-background text-warning",
+    rejected: "border-border bg-background text-negative",
   };
 
   return (
@@ -110,7 +110,7 @@ export default function TradesPage() {
       <PageHeader title="Trades" subtitle="Riwayat semua posisi yang dibuka bot" />
 
       {/* filters */}
-      <div className="glass-panel mb-5 rounded-xl p-3 sm:p-4">
+      <div className="glass-panel mb-5 rounded-[15px] p-3 sm:p-4">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter status trade">
@@ -121,22 +121,22 @@ export default function TradesPage() {
                   type="button"
                   aria-pressed={status === s}
                   className={cn(
-                    "min-h-9 rounded-lg px-3 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70",
+                    "min-h-9 rounded-full border border-border px-3 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     status === s
-                      ? "bg-blue-500/15 font-medium text-blue-200 ring-1 ring-inset ring-blue-400/25"
-                      : "text-slate-400 hover:bg-slate-800 hover:text-slate-100",
+                      ? "bg-foreground font-medium text-black"
+                      : "text-muted-foreground hover:bg-background hover:text-foreground",
                   )}
                 >
                   {s === "all" ? "Semua" : s}
                 </button>
               ))}
             </div>
-            <label className="flex items-center gap-2 text-sm text-slate-400">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="sr-only">Filter symbol</span>
               <select
                 value={symbol}
                 onChange={(e) => setSymbol(e.target.value)}
-                className="glass-inset h-9 min-w-36 rounded-lg border-white/10 px-3 text-[13px] text-slate-200 outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
+                className={cn("h-9 min-w-36 rounded-full border border-border px-3 text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring", symbol !== "all" ? "bg-foreground text-black" : "bg-background text-foreground")}
               >
                 <option value="all">Semua symbol</option>
                 {symbols.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -144,17 +144,17 @@ export default function TradesPage() {
             </label>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-white/[0.07] pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-divider pt-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-200">Rentang tanggal</p>
-              <p className="text-xs text-slate-500">Berdasarkan waktu pembukaan posisi · WIB</p>
+              <p className="text-sm font-medium text-foreground">Rentang tanggal</p>
+              <p className="text-xs text-muted-foreground">Berdasarkan waktu pembukaan posisi · WIB</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <DateFilter label="Tanggal mulai" value={dateFrom} onSelect={(date) => { setDateFrom(date); if (date && dateTo && date > dateTo) setDateTo(undefined); }} />
-              <span className="hidden text-xs text-slate-500 sm:inline">sampai</span>
+              <span className="hidden text-xs text-muted-foreground sm:inline">sampai</span>
               <DateFilter label="Tanggal akhir" value={dateTo} onSelect={setDateTo} disabled={dateFrom ? { before: dateFrom } : undefined} />
               {(dateFrom || dateTo) && (
-                <Button type="button" variant="ghost" size="sm" onClick={() => { setDateFrom(undefined); setDateTo(undefined); }} className="h-9 justify-start px-2.5 text-slate-400 hover:text-slate-100 sm:justify-center" aria-label="Hapus filter tanggal">
+                <Button type="button" variant="ghost" size="sm" onClick={() => { setDateFrom(undefined); setDateTo(undefined); }} className="h-9 justify-start rounded-full px-2.5 text-muted-foreground shadow-none hover:bg-background hover:text-foreground focus-visible:ring-ring sm:justify-center" aria-label="Hapus filter tanggal">
                   <X className="h-3.5 w-3.5" />
                   <span className="sm:hidden">Hapus tanggal</span>
                 </Button>
@@ -166,40 +166,40 @@ export default function TradesPage() {
 
       {/* filtered summary */}
       <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="glass-panel rounded-xl p-4">
-          <p className="text-xs text-slate-500">Total PnL (filter)</p>
-          <p className={cn("mt-1 font-mono text-xl font-semibold", totalPnl >= 0 ? "text-emerald-300" : "text-red-300")}>
+        <div className="glass-panel rounded-[15px] p-4">
+          <p className="text-xs text-muted-foreground">Total PnL (filter)</p>
+          <p className={cn("mt-1 font-sans text-xl font-semibold tracking-tight tabular-nums", totalPnl >= 0 ? "text-positive" : "text-negative")}>
             {fmtMoney(totalPnl)}
           </p>
         </div>
-        <div className="glass-panel rounded-xl p-4">
-          <p className="text-xs text-slate-500">Win rate (filter)</p>
-          <p className="mt-1 font-mono text-xl font-semibold text-slate-100">{winRate}%</p>
+        <div className="glass-panel rounded-[15px] p-4">
+          <p className="text-xs text-muted-foreground">Win rate (filter)</p>
+          <p className="mt-1 font-sans text-xl font-semibold tracking-tight tabular-nums text-foreground">{winRate}%</p>
         </div>
-        <div className="glass-panel rounded-xl p-4">
-          <p className="text-xs text-slate-500">Jumlah trade</p>
-          <p className="mt-1 font-mono text-xl font-semibold text-slate-100">{filtered.length}</p>
+        <div className="glass-panel rounded-[15px] p-4">
+          <p className="text-xs text-muted-foreground">Jumlah trade</p>
+          <p className="mt-1 font-sans text-xl font-semibold tracking-tight tabular-nums text-foreground">{filtered.length}</p>
         </div>
       </div>
 
       {/* table */}
-      <div className="solid-data overflow-hidden rounded-xl border">
+      <div className="solid-data overflow-hidden rounded-[15px] border border-border">
         {loading ? (
           <div className="space-y-3 p-5">
-            <Skeleton className="h-9 w-full bg-slate-800" />
-            <Skeleton className="h-9 w-full bg-slate-800" />
-            <Skeleton className="h-9 w-full bg-slate-800" />
+            <Skeleton className="h-9 w-full bg-card" />
+            <Skeleton className="h-9 w-full bg-card" />
+            <Skeleton className="h-9 w-full bg-card" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-slate-500">
-            <Minus className="mb-2 h-8 w-8 text-slate-600" />
+          <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
+            <Minus className="mb-2 h-8 w-8 text-muted-foreground" />
             <p className="text-sm">Tidak ada trade sesuai filter</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-[13px]">
-              <thead className="bg-slate-950/50">
-                <tr className="border-b border-slate-800 text-xs tracking-normal text-slate-500">
+              <thead className="bg-background">
+                <tr className="border-b border-divider text-xs tracking-normal text-muted-foreground">
                   <th className="py-2 pl-4 pr-2 text-left font-medium">Symbol</th>
                   <th className="px-2 py-2 text-left font-medium">Side</th>
                   <th className="px-2 py-2 text-right font-medium">Lots</th>
@@ -217,28 +217,28 @@ export default function TradesPage() {
                   const sideLower = t.side?.toLowerCase() ?? "";
                   const isLong = sideLower.startsWith("buy");
                   return (
-                    <tr key={t.id} className="border-b border-slate-800/70 transition-colors hover:bg-blue-500/[0.04]">
-                      <td className="py-3 pl-4 pr-2 font-mono font-semibold text-slate-200">{t.symbol}</td>
+                    <tr key={t.id} className="border-b border-divider transition-colors hover:bg-background">
+                      <td className="py-3 pl-4 pr-2 font-mono font-semibold text-foreground">{t.symbol}</td>
                       <td className="px-2 py-2">
-                        <span className={cn("flex items-center gap-1 font-medium", isLong ? "text-emerald-400" : "text-red-400")}>
+                        <span className={cn("flex items-center gap-1 font-medium", isLong ? "text-buy" : "text-sell")}>
                           {isLong ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                           {t.side}
                         </span>
                       </td>
-                      <td className="px-2 py-3 text-right font-mono text-slate-300">{fmtNum(t.lots)}</td>
-                      <td className="px-2 py-3 text-right font-mono text-slate-300">{fmtNum(t.entry)}</td>
-                      <td className="px-2 py-3 text-right font-mono text-slate-500">{fmtNum(t.closePrice)}</td>
+                      <td className="px-2 py-3 text-right font-mono text-foreground">{fmtNum(t.lots)}</td>
+                      <td className="px-2 py-3 text-right font-mono text-foreground">{fmtNum(t.entry)}</td>
+                      <td className="px-2 py-3 text-right font-mono text-muted-foreground">{fmtNum(t.closePrice)}</td>
                       <td className={cn(
                         "px-2 py-3 text-right font-mono font-semibold",
-                        profit != null && profit > 0 ? "text-emerald-400" : profit != null && profit < 0 ? "text-red-400" : "text-zinc-500",
+                        profit != null && profit > 0 ? "text-positive" : profit != null && profit < 0 ? "text-negative" : "text-muted-foreground",
                       )}>
                         {profit != null ? `${profit >= 0 ? "+" : ""}${fmtMoney(profit)}` : "-"}
                       </td>
                       <td className="px-2 py-3">
-                        <Badge variant="outline" className={cn("capitalize", statusColor[t.status] ?? "text-slate-400")}>{t.status}</Badge>
+                        <Badge variant="outline" className={cn("rounded-full capitalize", statusColor[t.status] ?? "text-muted-foreground")}>{t.status}</Badge>
                       </td>
-                      <td className="px-2 py-3 text-slate-400">{t.strategy ?? "-"}</td>
-                      <td className="py-3 pl-2 pr-4 text-slate-500">{t.openTs ? fmtDateTime(t.openTs) : "-"}</td>
+                      <td className="px-2 py-3 text-muted-foreground">{t.strategy ?? "-"}</td>
+                      <td className="py-3 pl-2 pr-4 font-mono text-muted-foreground">{t.openTs ? fmtDateTime(t.openTs) : "-"}</td>
                     </tr>
                   );
                 })}

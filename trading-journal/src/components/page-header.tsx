@@ -61,37 +61,37 @@ export function PageHeader({
   };
 
   return (
-    <header className={cn("glass-panel mb-7 flex flex-col gap-4 rounded-2xl px-4 py-4 sm:px-5 lg:flex-row lg:items-end lg:justify-between", className)}>
+    <header className={cn("mb-8 flex flex-col gap-5 border-b border-divider pb-6 pt-2 lg:flex-row lg:items-end lg:justify-between", className)}>
       <div className="min-w-0">
-        <p className="mb-1 text-xs font-medium tracking-normal text-blue-400/80">Trading workspace</p>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-[28px]">{title}</h1>
-        {subtitle && <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">{subtitle}</p>}
+        <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Trading workspace / MT5</p>
+        <h1 className="text-[28px] font-semibold tracking-[-0.05em] text-foreground sm:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle}</p>}
       </div>
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="glass-inset inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-slate-400">
-          <span className="text-slate-500">WIB</span><span className="font-mono text-slate-200">{time}</span>
+        <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-divider px-3 text-muted-foreground">
+          <span>WIB</span><span className="tabular-nums text-foreground">{time}</span>
         </span>
         {account.balance != null && (
-          <span className="glass-inset inline-flex h-8 items-center gap-2 rounded-lg px-2.5 font-mono">
-            <span className="text-slate-500">Bal</span>
-            <span className="text-slate-300">{account.balance.toLocaleString("id-ID", { minimumFractionDigits: 2 })}</span>
-            <span className="text-slate-600">/</span>
-            <span className="text-slate-500">Eq</span>
-            <span className={account.equity != null && account.equity < account.balance ? "text-amber-300" : "text-emerald-300"}>{account.equity?.toLocaleString("id-ID", { minimumFractionDigits: 2 })}</span>
-            <span className="text-slate-500">{account.currency}</span>
+          <span className="inline-flex min-h-8 flex-wrap items-center gap-2 rounded-full border border-divider px-3 py-1 tabular-nums">
+            <span className="text-muted-foreground">Bal</span>
+            <span className="text-foreground">{account.balance.toLocaleString("id-ID", { minimumFractionDigits: 2 })}</span>
+            <span className="text-muted-foreground">/</span>
+            <span className="text-muted-foreground">Eq</span>
+            <span className={account.equity != null && account.equity < account.balance ? "text-negative" : "text-foreground"}>{account.equity?.toLocaleString("id-ID", { minimumFractionDigits: 2 }) ?? "-"}</span>
+            <span className="text-muted-foreground">{account.currency}</span>
           </span>
         )}
-        <Button type="button" variant="outline" size="sm" onClick={doSync} disabled={syncing} className="h-8 border-slate-700 bg-slate-900/70 text-slate-300 hover:border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-200">
+        <Button type="button" variant="outline" size="sm" onClick={doSync} disabled={syncing} className="h-8">
           <RefreshCw className={cn("h-3.5 w-3.5", syncing && "animate-spin")} />
           {syncing ? "Sync..." : "Sync MT5"}
         </Button>
         {connected !== undefined && (
-          <span className={cn("inline-flex h-8 items-center gap-2 rounded-lg px-2.5", connected ? "bg-emerald-500/10 text-emerald-300" : "bg-red-500/10 text-red-300")}>
-            <span className={cn("h-1.5 w-1.5 rounded-full", connected ? "animate-pulse bg-emerald-400" : "bg-red-400")} />
+          <span className="inline-flex h-8 items-center gap-2 rounded-full border border-divider px-3 text-muted-foreground">
+            <span className={cn("h-1.5 w-1.5 rounded-full", connected ? "animate-pulse bg-signal" : "border border-muted-foreground")} />
             {connected ? "Live" : "Offline"}
           </span>
         )}
-        {syncMsg && <span role="status" className="basis-full text-right text-xs text-slate-500">{syncMsg}</span>}
+        {syncMsg && <span role="status" className="basis-full text-right text-xs text-muted-foreground">{syncMsg}</span>}
       </div>
     </header>
   );

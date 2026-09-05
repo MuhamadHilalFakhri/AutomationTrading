@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function MarketChartPage() {
   return (
-    <div>
+    <div className="text-foreground">
       <PageHeader
         title="Market Chart"
         subtitle="Pantau pergerakan harga dan analisis berbagai pair dalam satu workspace"

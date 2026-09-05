@@ -15,7 +15,7 @@ export interface PnlPoint {
 export function DailyPnlChart({ days, className }: { days: PnlPoint[]; className?: string }) {
   if (!days.length) {
     return (
-      <div className={cn("flex w-full items-center justify-center text-sm text-slate-500", className ?? "h-56")}>
+      <div className={cn("flex w-full items-center justify-center border border-black bg-card font-sans text-sm text-muted-foreground shadow-none", className ?? "h-56")}>
         Belum ada data PnL
       </div>
     );
@@ -33,25 +33,19 @@ export function DailyPnlChart({ days, className }: { days: PnlPoint[]; className
   }, []);
 
   return (
-    <div className={cn("w-full", className ?? "h-56")}>
+    <div className={cn("w-full border border-black bg-card font-sans shadow-none", className ?? "h-56")}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
-          <defs>
-            <linearGradient id="pnlFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#60a5fa" stopOpacity={0.24} />
-              <stop offset="100%" stopColor="#60a5fa" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#26354d" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(205,208,214,.12)" vertical={false} />
           <XAxis
             dataKey="date"
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
-            axisLine={{ stroke: "#334155" }}
+            tick={{ fill: "#cdd0d6", fontSize: 11, fontFamily: "var(--font-inter), Inter, sans-serif" }}
+            axisLine={{ stroke: "var(--divider, rgba(205,208,214,.15))" }}
             tickLine={false}
             minTickGap={20}
           />
           <YAxis
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#cdd0d6", fontSize: 11, fontFamily: "var(--font-inter), Inter, sans-serif" }}
             axisLine={false}
             tickLine={false}
             width={52}
@@ -59,20 +53,24 @@ export function DailyPnlChart({ days, className }: { days: PnlPoint[]; className
           />
           <Tooltip
             contentStyle={{
-              background: "#172033",
-              border: "1px solid #334155",
+              background: "#202a3e",
+              border: "1px solid #000000",
+              color: "#ffffff",
+              boxShadow: "none",
               borderRadius: 8,
               fontSize: 12,
             }}
-            labelStyle={{ color: "#cbd5e1" }}
+            labelStyle={{ color: "#cdd0d6" }}
+            itemStyle={{ color: "#ffffff" }}
+            cursor={{ stroke: "#6ae4ff" }}
             formatter={(value, name) => [fmtMoney(Number(value)), name === "day" ? "PnL harian" : "Balance kumulatif"]}
           />
           <Area
             type="monotone"
             dataKey="balance"
-            stroke="#60a5fa"
+            stroke="#6ae4ff"
             strokeWidth={2}
-            fill="url(#pnlFill)"
+            fill="transparent"
           />
         </AreaChart>
       </ResponsiveContainer>
