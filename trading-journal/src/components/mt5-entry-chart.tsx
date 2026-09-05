@@ -150,7 +150,7 @@ function buildTradeMarkers(candles: Mt5Candle[], trades: Trade[]): SeriesMarker<
           price,
           position: "atPriceMiddle" as const,
           shape: "circle" as const,
-          color: group.pnl >= 0 ? "#ffffff" : "#cdd0d6",
+          color: group.pnl >= 0 ? "#22c55e" : "#ef4444",
           text: `EXIT${count} ${money(group.pnl)}`,
           size: 1,
         };
@@ -163,7 +163,7 @@ function buildTradeMarkers(candles: Mt5Candle[], trades: Trade[]): SeriesMarker<
         price,
         position: isBuy ? ("atPriceBottom" as const) : ("atPriceTop" as const),
         shape: isBuy ? ("arrowUp" as const) : ("arrowDown" as const),
-        color: ENTRY_COLOR,
+        color: isBuy ? "#22c55e" : "#ef4444",
         text: `${group.side}${count} @ ${price.toFixed(2)}`,
         size: 1.4,
       };
@@ -236,11 +236,11 @@ function TradeCandlestickChart({
     });
 
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#ffffff",
-      downColor: "#cdd0d6",
+      upColor: "#22c55e",
+      downColor: "#ef4444",
       borderVisible: false,
-      wickUpColor: "#ffffff",
-      wickDownColor: "#cdd0d6",
+      wickUpColor: "#22c55e",
+      wickDownColor: "#ef4444",
       priceLineColor: "#6ae4ff",
       priceFormat: { type: "price", precision: digits, minMove: 10 ** -digits },
     });
@@ -288,14 +288,17 @@ function TradeCandlestickChart({
     priceLinesRef.current = trades
       .filter((trade) => trade.status === "open" && trade.entry != null)
       .slice(0, 12)
-      .map((trade) => series.createPriceLine({
-        price: trade.entry as number,
-        color: ENTRY_COLOR,
-        lineWidth: 2,
-        lineStyle: LineStyle.Dashed,
-        axisLabelVisible: true,
-        title: `${trade.side} #${trade.ticket ?? trade.id}`,
-      }));
+      .map((trade) => {
+        const isBuy = trade.side.toUpperCase().startsWith("BUY");
+        return series.createPriceLine({
+          price: trade.entry as number,
+          color: isBuy ? "#22c55e" : "#ef4444",
+          lineWidth: 2,
+          lineStyle: LineStyle.Dashed,
+          axisLabelVisible: true,
+          title: `${trade.side} #${trade.ticket ?? trade.id}`,
+        });
+      });
 
     if (!fittedRef.current) {
       chart.timeScale().fitContent();
@@ -522,13 +525,13 @@ export function Mt5EntryChart() {
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-divider bg-card px-3 py-2 text-[11px] text-muted-foreground sm:px-4">
-          <span className="inline-flex items-center gap-1 text-signal"><ArrowUp className="h-3.5 w-3.5" />BUY entry</span>
-          <span className="inline-flex items-center gap-1 text-signal"><ArrowDown className="h-3.5 w-3.5" />SELL entry</span>
-          <span className="inline-flex items-center gap-1.5 text-foreground">
-            <span className="h-2 w-2 rounded-full bg-foreground" />EXIT + profit
+          <span className="inline-flex items-center gap-1 text-buy"><ArrowUp className="h-3.5 w-3.5" />BUY entry</span>
+          <span className="inline-flex items-center gap-1 text-sell"><ArrowDown className="h-3.5 w-3.5" />SELL entry</span>
+          <span className="inline-flex items-center gap-1.5 text-positive">
+            <span className="h-2 w-2 rounded-full bg-positive" />EXIT + profit
           </span>
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-            <span className="h-2 w-2 rounded-full bg-muted-foreground" />EXIT - loss
+          <span className="inline-flex items-center gap-1.5 text-negative">
+            <span className="h-2 w-2 rounded-full bg-negative" />EXIT - loss
           </span>
           <span className="ml-auto">
             Chart by{" "}

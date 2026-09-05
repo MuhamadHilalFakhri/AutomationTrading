@@ -174,7 +174,7 @@ export default function TradesPage() {
         </div>
         <div className="glass-panel rounded-[15px] p-4">
           <p className="text-xs text-muted-foreground">Win rate (filter)</p>
-          <p className="mt-1 font-sans text-xl font-semibold tracking-tight tabular-nums text-foreground">{winRate}%</p>
+          <p className={cn("mt-1 font-sans text-xl font-semibold tracking-tight tabular-nums", closed.length > 0 ? (winRate >= 50 ? "text-positive" : "text-negative") : "text-foreground")}>{winRate}%</p>
         </div>
         <div className="glass-panel rounded-[15px] p-4">
           <p className="text-xs text-muted-foreground">Jumlah trade</p>

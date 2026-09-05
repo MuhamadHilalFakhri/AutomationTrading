@@ -39,10 +39,10 @@ export default function DashboardPage() {
           icon={<TrendingUp className="h-4 w-4" />}
           label="Win Rate"
           value={stats?.winRate != null ? `${stats.winRate}%` : "-"}
-          valueClass={stats?.winRate != null && stats.winRate >= 50 ? "text-positive" : "text-negative"}
+          valueClass={stats?.winRate != null ? (stats.winRate >= 50 ? "text-positive" : "text-negative") : ""}
         />
         <StatCard
-          icon={<TrendingDown className="h-4 w-4" />}
+          icon={stats?.realizedPnl != null && stats.realizedPnl < 0 ? <TrendingDown className="h-4 w-4" /> : <TrendingUp className="h-4 w-4" />}
           label="Realized PnL"
           value={stats?.realizedPnl != null ? fmtMoney(stats.realizedPnl) : "-"}
           valueClass={stats?.realizedPnl != null ? (stats.realizedPnl >= 0 ? "text-positive" : "text-negative") : ""}
@@ -119,10 +119,10 @@ function StatCard({
     <Card size="sm" className="gap-1 rounded-[15px] border border-border bg-card py-4 shadow-none ring-0 transition-colors hover:border-signal">
       <CardContent className="px-4">
         <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="text-signal">{icon}</span>
+          <span className={cn(valueClass || "text-signal")}>{icon}</span>
           <span>{label}</span>
         </div>
-        <div className={cn("font-sans text-[23px] font-semibold tracking-tight tabular-nums text-foreground", valueClass ?? "")}>
+        <div className={cn("font-sans text-[23px] font-semibold tracking-tight tabular-nums", valueClass || "text-foreground")}>
           {value}
         </div>
       </CardContent>

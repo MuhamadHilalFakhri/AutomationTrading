@@ -17,33 +17,71 @@ const KIND_STYLE: Record<string, { color: string; label: string }> = {
   error: { color: "text-negative", label: "ERROR" },
 };
 
-function describeEvent(ev: JournalEvent): string {
+function describeEvent(ev: JournalEvent): React.ReactNode {
   const p = ev.payload as Record<string, unknown>;
   switch (ev.kind) {
     case "scan":
       return `mengambil data market ${ev.symbol ?? ""}...`;
     case "decision": {
-      const dec = String(p.decision ?? "?");
+      const dec = String(p.decision ?? "?").toUpperCase();
       const conf = typeof p.confidence === "number" ? `${(p.confidence * 100).toFixed(0)}%` : "?";
       const strat = String(p.strategy ?? "");
-      return `${ev.symbol} ${dec} (conf ${conf}${strat ? `, ${strat}` : ""}) — ${String(p.reason ?? "").slice(0, 110)}`;
+      const decColor = dec === "BUY" ? "text-buy font-semibold" : dec === "SELL" ? "text-sell font-semibold" : "text-muted-foreground";
+      return (
+        <span>
+          {ev.symbol} <span className={decColor}>{dec}</span> (conf {conf}{strat ? `, ${strat}` : ""}) — {String(p.reason ?? "").slice(0, 110)}
+        </span>
+      );
     }
-    case "executed":
-      return `${ev.symbol} ${p.order_type} ${p.lots ?? "?"} lot @ ${p.entry ?? "?"} — order terkirim`;
+    case "executed": {
+      const orderType = String(p.order_type ?? "").toUpperCase();
+      const isBuy = orderType.includes("BUY");
+      const isSell = orderType.includes("SELL");
+      const sideColor = isBuy ? "text-buy font-semibold" : isSell ? "text-sell font-semibold" : "text-foreground";
+      return (
+        <span>
+          {ev.symbol} <span className={sideColor}>{String(p.order_type)}</span> {p.lots != null ? `${p.lots} lot` : ""} @ {p.entry != null ? String(p.entry) : ""} — order terkirim
+        </span>
+      );
+    }
     case "failed":
       return `${ev.symbol} order gagal: ${String(p.message ?? "").slice(0, 110)}`;
     case "risk_block":
       return `${ev.symbol} ditolak risk guard: ${String(p.reason ?? "").slice(0, 110)}`;
     case "close": {
       const results = Array.isArray(p.results) ? p.results : [];
-      const parts = results.map((r) => {
-        const rr = r as Record<string, unknown>;
-        return `#${rr.ticket} ${rr.ok ? "ok" : "gagal"}`;
-      });
-      return `${ev.symbol} posisi ditutup (${parts.join(", ")})`;
+      return (
+        <span>
+          {ev.symbol} posisi ditutup (
+          {results.map((r, i) => {
+            const rr = r as Record<string, unknown>;
+            return (
+              <span key={i}>
+                #{String(rr.ticket ?? "")} <span className={rr.ok ? "text-positive font-semibold" : "text-negative font-semibold"}>{rr.ok ? "ok" : "gagal"}</span>
+                {i < results.length - 1 ? ", " : ""}
+              </span>
+            );
+          })}
+          )
+        </span>
+      );
     }
-    case "pnl":
-      return `laporan — balance ${fmtMoneySafe(p.balance)} / equity ${fmtMoneySafe(p.equity)} / floating ${fmtMoneySafe(p.profit)}`;
+    case "pnl": {
+      const profitNum = Number(p.profit);
+      const hasProfit = Number.isFinite(profitNum);
+      return (
+        <span>
+          laporan — balance {fmtMoneySafe(p.balance)} / equity {fmtMoneySafe(p.equity)} / floating{" "}
+          {hasProfit ? (
+            <span className={cn("font-semibold", profitNum >= 0 ? "text-positive" : "text-negative")}>
+              {profitNum >= 0 ? "+" : ""}${profitNum.toFixed(2)}
+            </span>
+          ) : (
+            "-"
+          )}
+        </span>
+      );
+    }
     case "error":
       return String(p.message ?? JSON.stringify(p)).slice(0, 140);
     default:

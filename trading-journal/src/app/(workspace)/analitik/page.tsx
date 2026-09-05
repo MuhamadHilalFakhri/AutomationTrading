@@ -113,9 +113,9 @@ export default function AnalitikPage() {
       {/* headline metrics */}
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Metric label="Net Profit" value={fmtMoney(net)} color={net >= 0 ? "text-positive" : "text-negative"} />
-        <Metric label="Win Rate" value={`${winRate.toFixed(1)}%`} />
-        <Metric label="Profit Factor" value={profitFactor === Infinity ? "∞" : profitFactor.toFixed(2)} />
-        <Metric label="Avg RR" value={avgRR.toFixed(2)} />
+        <Metric label="Win Rate" value={`${winRate.toFixed(1)}%`} color={winRate >= 50 ? "text-positive" : "text-negative"} />
+        <Metric label="Profit Factor" value={profitFactor === Infinity ? "∞" : profitFactor.toFixed(2)} color={profitFactor >= 1 ? "text-positive" : "text-negative"} />
+        <Metric label="Avg RR" value={avgRR.toFixed(2)} color={avgRR >= 1 ? "text-positive" : "text-negative"} />
         <Metric label="Total Closed" value={String(closed.length)} />
         <Metric label="Avg Win / Avg Loss" value={`${fmtMoney(avgRR > 0 ? grossWin / (wins.length || 1) : 0)} / ${fmtMoney(grossLoss / (losses.length || 1))}`} />
       </div>
@@ -139,7 +139,7 @@ export default function AnalitikPage() {
                 {symbolData.map((d) => (
                   <Cell
                     key={d.name}
-                    fill="var(--signal)"
+                    fill={d.pnl >= 0 ? "var(--positive)" : "var(--negative)"}
                     stroke="var(--border)"
                     strokeWidth={1.5}
                   />
@@ -189,13 +189,13 @@ export default function AnalitikPage() {
                 <tr key={s.strategy} className="border-b border-divider transition-colors hover:bg-background">
                   <td className="py-3 pl-4 pr-2 font-mono font-medium text-foreground">{s.strategy}</td>
                   <td className="px-2 py-3 text-right font-mono text-foreground">{s.total}</td>
-                  <td className="px-2 py-3 text-right font-mono text-positive">{s.wins}</td>
-                  <td className="px-2 py-3 text-right font-mono text-negative">{s.losses}</td>
-                  <td className="px-2 py-3 text-right font-mono text-foreground">{s.winRate.toFixed(0)}%</td>
-                  <td className="px-2 py-3 text-right font-mono text-foreground">
+                  <td className="px-2 py-3 text-right font-mono font-semibold text-positive">{s.wins}</td>
+                  <td className="px-2 py-3 text-right font-mono font-semibold text-negative">{s.losses}</td>
+                  <td className={cn("px-2 py-3 text-right font-mono font-semibold", s.winRate >= 50 ? "text-positive" : "text-negative")}>{s.winRate.toFixed(0)}%</td>
+                  <td className={cn("px-2 py-3 text-right font-mono font-semibold", s.profitFactor >= 1 ? "text-positive" : "text-negative")}>
                     {s.profitFactor === Infinity ? "∞" : s.profitFactor.toFixed(2)}
                   </td>
-                    <td className={cn("py-3 pl-2 pr-4 text-right font-mono font-semibold", s.pnl >= 0 ? "text-positive" : "text-negative")}>
+                  <td className={cn("py-3 pl-2 pr-4 text-right font-mono font-semibold", s.pnl >= 0 ? "text-positive" : "text-negative")}>
                     {fmtMoney(s.pnl)}
                   </td>
                 </tr>

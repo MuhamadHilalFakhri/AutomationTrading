@@ -72,13 +72,13 @@
   --accent-foreground: var(--foreground);
   --signal: #6ae4ff;
   --divider: rgb(205 208 214 / 15%);
-  /* Outcomes retain their signs and labels without adding accent hues. */
-  --positive: var(--foreground);
-  --negative: var(--muted-foreground);
-  --buy: var(--foreground);
-  --sell: var(--muted-foreground);
-  --warning: var(--muted-foreground);
-  --destructive: var(--muted-foreground);
+  /* Trading outcomes: green for positive/buy/win, red for negative/sell/loss */
+  --positive: #22c55e;
+  --negative: #ef4444;
+  --buy: #22c55e;
+  --sell: #ef4444;
+  --warning: #f59e0b;
+  --destructive: #ef4444;
   --border: #000000;
   --input: var(--divider);
   --ring: var(--signal);

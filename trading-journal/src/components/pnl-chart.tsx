@@ -63,7 +63,19 @@ export function DailyPnlChart({ days, className }: { days: PnlPoint[]; className
             labelStyle={{ color: "#cdd0d6" }}
             itemStyle={{ color: "#ffffff" }}
             cursor={{ stroke: "#6ae4ff" }}
-            formatter={(value, name) => [fmtMoney(Number(value)), name === "day" ? "PnL harian" : "Balance kumulatif"]}
+            formatter={(value, name) => {
+              const num = Number(value);
+              const formatted = `${num > 0 && name === "day" ? "+" : ""}${fmtMoney(num)}`;
+              return [
+                <span
+                  key={String(name)}
+                  style={{ color: name === "day" ? (num >= 0 ? "#22c55e" : "#ef4444") : "#ffffff", fontWeight: 600 }}
+                >
+                  {formatted}
+                </span>,
+                name === "day" ? "PnL harian" : "Balance kumulatif",
+              ];
+            }}
           />
           <Area
             type="monotone"

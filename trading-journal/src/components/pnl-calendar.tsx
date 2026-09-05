@@ -71,7 +71,9 @@ export function PnlCalendar() {
           <div className="mt-1 text-muted-foreground">Trades</div>
         </div>
         <div className="glass-inset rounded-[15px] p-2.5">
-          <div className="font-sans font-semibold tracking-tight tabular-nums text-foreground">{monthTrades ? Math.round((monthWins / monthTrades) * 100) + "%" : "0%"}</div>
+          <div className={cn("font-sans font-semibold tracking-tight tabular-nums", monthTrades ? (monthWins / monthTrades >= 0.5 ? "text-positive" : "text-negative") : "text-foreground")}>
+            {monthTrades ? Math.round((monthWins / monthTrades) * 100) + "%" : "0%"}
+          </div>
           <div className="mt-1 text-muted-foreground">Win Rate</div>
         </div>
       </div>
@@ -93,14 +95,20 @@ export function PnlCalendar() {
             <div
               key={d}
               className={cn(
-                "flex aspect-[5/4] flex-col items-center justify-center rounded-[15px] border bg-background p-1 tabular-nums",
-                isToday ? "border-signal" : "border-border",
+                "flex aspect-[5/4] flex-col items-center justify-center rounded-[15px] border p-1 tabular-nums transition-colors",
+                isToday
+                  ? "border-signal"
+                  : info && pnl > 0
+                    ? "border-positive/30 bg-positive/10"
+                    : info && pnl < 0
+                      ? "border-negative/30 bg-negative/10"
+                      : "border-border bg-background",
               )}
             >
               <span className={cn("font-medium", isToday ? "text-signal" : "text-muted-foreground")}>{d}</span>
               {info ? (
                 <>
-                  <span className={cn("text-[10px] leading-none", pnl >= 0 ? "text-positive" : "text-negative")}>
+                  <span className={cn("text-[10px] font-semibold leading-none", pnl >= 0 ? "text-positive" : "text-negative")}>
                     {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(0)}
                   </span>
                   <span className="text-[10px] text-muted-foreground leading-none">{info.tradeCount}t</span>

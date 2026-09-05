@@ -40,7 +40,7 @@ export function WidgetCard({
 function WidgetMetric({ label, value, color, icon }: { label: string; value: string; color?: string; icon?: React.ReactNode }) {
   return (
     <div className="glass-inset flex items-center gap-2.5 rounded-[15px] px-3 py-2.5">
-      {icon && <span className="text-signal">{icon}</span>}
+      {icon && <span className={cn(color || "text-signal")}>{icon}</span>}
       <div className="min-w-0">
         <p className="text-xs font-medium tracking-normal text-muted-foreground">{label}</p>
         <p className={cn("truncate font-sans text-base font-semibold leading-tight tracking-tight tabular-nums", color ?? "text-foreground")}>{value}</p>
@@ -96,8 +96,8 @@ export function AnalitikWidget({ className }: { className?: string }) {
         <div className="flex flex-col gap-2.5">
           <div className="grid grid-cols-2 gap-2.5">
             <WidgetMetric icon={<BarChart3 className="h-4 w-4" />} label="Net Profit" value={fmtMoney(net)} color={net >= 0 ? "text-positive" : "text-negative"} />
-            <WidgetMetric icon={<Target className="h-4 w-4" />} label="Win Rate" value={`${winRate.toFixed(1)}%`} />
-            <WidgetMetric icon={<TrendingUp className="h-4 w-4" />} label="Profit Factor" value={pf === Infinity ? "∞" : pf.toFixed(2)} />
+            <WidgetMetric icon={<Target className="h-4 w-4" />} label="Win Rate" value={`${winRate.toFixed(1)}%`} color={closed.length > 0 ? (winRate >= 50 ? "text-positive" : "text-negative") : undefined} />
+            <WidgetMetric icon={<TrendingUp className="h-4 w-4" />} label="Profit Factor" value={pf === Infinity ? "∞" : pf.toFixed(2)} color={closed.length > 0 ? (pf >= 1 ? "text-positive" : "text-negative") : undefined} />
             <WidgetMetric icon={<TrendingDown className="h-4 w-4" />} label="Total Closed" value={String(closed.length)} />
           </div>
           {top && (
