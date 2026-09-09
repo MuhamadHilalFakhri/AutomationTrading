@@ -57,7 +57,12 @@ class AIAgent:
         try:
             obj = json.loads(raw)
         except json.JSONDecodeError:
-            raise RuntimeError(f"Non-JSON response from 9Router ({dt:.1f}s): {raw[:200]}")
+            # beberapa gateway menambah sentinel streaming "data: [DONE]"
+            # setelah JSON utuh (zr dsb.) — ambil JSON pertama saja
+            try:
+                obj, _idx = json.JSONDecoder().raw_decode(raw.lstrip())
+            except (json.JSONDecodeError, ValueError) as e:
+                raise RuntimeError(f"Non-JSON response from 9Router ({dt:.1f}s): {raw[:200]}") from e
         self.session_id = obj.get('id', '')
         self.last_latency = dt
         return obj
