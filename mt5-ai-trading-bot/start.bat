@@ -1,5 +1,5 @@
 @echo off
-REM MT5 AI Trading Bot launcher (Windows)
+REM MT5 Automation Trading launcher (Windows)
 cd /d D:\Projects\mt5-ai-trading-bot
 set PYTHON=D:\HermesAgent\hermes-agent\venv\Scripts\python.exe
 

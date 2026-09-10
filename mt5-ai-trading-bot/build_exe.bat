@@ -1,15 +1,15 @@
 @echo off
 REM ============================================================
-REM  Build "AI Trading Bot.exe" — GUI launcher all-in-one
-REM  Icon: assets\icon.ico (dari D:\Logo.png)
-REM  Output: "AI Trading Bot.exe" di folder project (sebelah config.yaml)
+REM  Build "Automation Trading.exe" — GUI launcher all-in-one
+REM  Icon: assets\LogoAT.ico
+REM  Output: "Automation Trading.exe" di folder project (sebelah config.yaml)
 REM ============================================================
 cd /d D:\Projects\mt5-ai-trading-bot
 set PYTHON=D:\HermesAgent\hermes-agent\venv\Scripts\python.exe
 
 %PYTHON% -m PyInstaller --onefile --windowed --clean --noconfirm ^
-  --name "AI Trading Bot" ^
-  --icon "assets\icon.ico" ^
+  --name "Automation Trading" ^
+  --icon "assets\LogoAT.ico" ^
   --add-data "assets;assets" ^
   --distpath . --workpath build --specpath build ^
   --paths server ^
@@ -22,9 +22,9 @@ set PYTHON=D:\HermesAgent\hermes-agent\venv\Scripts\python.exe
   gui_app.py
 
 echo.
-if exist "AI Trading Bot.exe" (
+if exist "Automation Trading.exe" (
     del /q MT5TradingBot.exe 2>nul
-    echo BUILD OK: %cd%\AI Trading Bot.exe
+    echo BUILD OK: %cd%\Automation Trading.exe
 ) else (
     echo BUILD GAGAL - cek output di atas
 )

@@ -47,7 +47,7 @@ def build_engine(cfg: Config):
 
 def create_app(cfg: Config):
     gw, ai, risk, tm, eng, renderer = build_engine(cfg)
-    app = FastAPI(title="MT5 AI Trading Bot", version="1.0.0")
+    app = FastAPI(title="MT5 Automation Trading", version="1.0.0")
     app.state.engine = eng
     app.state.gateway = gw
     api_key = os.environ.get(cfg.get(['server', 'api_key_env'], 'MT5AI_API_KEY'), '')

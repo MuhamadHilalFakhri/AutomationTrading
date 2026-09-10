@@ -1,4 +1,4 @@
-"""MT5 AI Trading Bot — GUI Launcher (all-in-one, single EXE).
+"""MT5 Automation Trading — GUI Launcher (all-in-one, single EXE).
 
 Semua konfigurasi via form (input + dropdown + checkbox), tanpa edit config.yaml manual.
 Bot dijalankan IN-PROCESS (bukan subprocess) sehingga bisa dibungkus PyInstaller:
@@ -21,6 +21,7 @@ import traceback
 import urllib.parse
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
+from PIL import Image, ImageTk
 
 
 # ── paths (frozen-safe) ────────────────────────────────────────────
@@ -297,7 +298,7 @@ class BotRunner:
 class BotGUI:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title('AI Trading Bot — MT5 Terminal')
+        self.root.title('Automation Trading — MT5 Terminal')
         self.root.geometry('1280x860')
         self.root.minsize(1040, 700)
         self._set_window_icon()
@@ -325,19 +326,12 @@ class BotGUI:
         try:
             if getattr(sys, 'frozen', False):
                 base = getattr(sys, '_MEIPASS', ROOT)
-                cands = [os.path.join(base, 'assets', 'logo.png'),
-                         os.path.join(base, 'assets', 'icon.ico')]
+                cands = [os.path.join(base, 'assets', 'LogoAT.ico')]
             else:
-                cands = [os.path.join(ROOT, 'assets', 'logo.png'),
-                         os.path.join(ROOT, 'assets', 'icon.ico')]
+                cands = [os.path.join(ROOT, 'assets', 'LogoAT.ico')]
             for c in cands:
                 if os.path.exists(c):
-                    if c.endswith('.png'):
-                        img = tk.PhotoImage(file=c)
-                        self.root.iconphoto(True, img)
-                        self._icon_ref = img   # simpan referensi biar tidak di-GC
-                    else:
-                        self.root.iconbitmap(c)
+                    self.root.iconbitmap(c)
                     break
         except Exception:
             pass
@@ -466,15 +460,17 @@ class BotGUI:
         hdr.pack(fill='x', padx=14, pady=(12, 4))
         try:
             base = getattr(sys, '_MEIPASS', ROOT)
-            logo_p = os.path.join(base, 'assets', 'logo.png')
+            logo_p = os.path.join(base, 'assets', 'LogoAT.ico')
             if os.path.exists(logo_p):
-                self._logo_img = tk.PhotoImage(file=logo_p).subsample(6, 6)
+                logo = Image.open(logo_p).convert('RGBA')
+                logo.thumbnail((52, 52), Image.Resampling.LANCZOS)
+                self._logo_img = ImageTk.PhotoImage(logo)
                 ttk.Label(hdr, image=self._logo_img).pack(side='left', padx=(0, 10))
         except Exception:
             pass
         ttl = ttk.Frame(hdr, style='Header.TLabel')
         ttl.pack(side='left')
-        ttk.Label(ttl, text='AI TRADING BOT', style='Header.TLabel').pack(anchor='w')
+        ttk.Label(ttl, text='AUTOMATION TRADING', style='Header.TLabel').pack(anchor='w')
         ttk.Label(ttl, text='MT5 + AI Vision (9Router) · Control Panel',
                   style='Sub.TLabel').pack(anchor='w')
 
@@ -1381,7 +1377,7 @@ class BotGUI:
                     return
                 body = ('chat_id={}&text={}'.format(
                     urllib.parse.quote(str(chat)),
-                    urllib.parse.quote('✅ Test dari AI Trading Bot — koneksi Telegram OK!')))
+                    urllib.parse.quote('✅ Test dari Automation Trading — koneksi Telegram OK!')))
                 req = urllib.request.Request(
                     f'https://api.telegram.org/bot{tok}/sendMessage',
                     data=body.encode(), method='POST')
@@ -1597,16 +1593,18 @@ class BotGUI:
         hdr.pack(fill='x', padx=12, pady=(12, 0))
         try:
             base = getattr(sys, '_MEIPASS', ROOT)
-            logo_p = os.path.join(base, 'assets', 'logo.png')
+            logo_p = os.path.join(base, 'assets', 'LogoAT.ico')
             if os.path.exists(logo_p):
-                self._logo_img = tk.PhotoImage(file=logo_p).subsample(7, 7)
+                logo = Image.open(logo_p).convert('RGBA')
+                logo.thumbnail((52, 52), Image.Resampling.LANCZOS)
+                self._logo_img = ImageTk.PhotoImage(logo)
                 ttk.Label(hdr, image=self._logo_img,
                           background=UI['panel']).pack(side='left', padx=(0, 12))
         except Exception:
             pass
         brand = ttk.Frame(hdr, style='Panel.TFrame')
         brand.pack(side='left')
-        ttk.Label(brand, text='AI Trading Bot', style='Header.TLabel').pack(anchor='w')
+        ttk.Label(brand, text='Automation Trading', style='Header.TLabel').pack(anchor='w')
         ttk.Label(brand, text='MT5 execution · AI Vision · 9Router',
                   style='Sub.TLabel').pack(anchor='w')
         ttk.Label(hdr, text='Desktop terminal', style='StatusMuted.TLabel').pack(

@@ -1,4 +1,4 @@
-# 🤖 MT5 AI Trading Bot
+# 🤖 MT5 Automation Trading
 
 Bot trading otomatis untuk **MetaTrader 5** yang ditenagai AI (LLM). Bot membaca kondisi pasar dari chart & indikator, lalu AI memutuskan apakah akan **BUY / SELL / HOLD**, memasang **pending order**, atau **menutup posisi** — lengkap dengan manajemen risiko otomatis (risk-based lot sizing, SL/TP, break-even, trailing stop, partial TP).
 
@@ -45,7 +45,7 @@ Semua dikontrol dari **aplikasi desktop (GUI)** — tidak perlu menulis kode. Ad
 - **AutoTrading aktif** di MT5 (tombol **Algo Trading** di toolbar — harus hijau)
 - Koneksi internet (untuk panggil AI)
 - Satu dari dua cara jalan:
-  - **Aplikasi jadi**: `AI Trading Bot.exe` (tidak perlu install Python)
+  - **Aplikasi jadi**: `Automation Trading.exe` (tidak perlu install Python)
   - **Dari source**: Python 3.10+ dengan package di `requirements.txt`
 
 > Untuk akun **Vantage** (contoh yang dipakai saat pengembangan): pasang MetaTrader 5 Vantage, login akun demo. Path terminal biasanya `C:\Program Files\MetaTrader 5\terminal64.exe`.
@@ -55,8 +55,8 @@ Semua dikontrol dari **aplikasi desktop (GUI)** — tidak perlu menulis kode. Ad
 ## 🔧 Instalasi / Persiapan Awal
 
 ### Opsi A — Pakai aplikasi jadi (EXE)
-1. Copy folder proyek (berisi `AI Trading Bot.exe`, `config.yaml`, folder `assets/`, `logs/`) ke komputer.
-2. Jalankan `AI Trading Bot.exe`.
+1. Copy folder proyek (berisi `Automation Trading.exe`, `config.yaml`, folder `assets/`, `logs/`) ke komputer.
+2. Jalankan `Automation Trading.exe`.
 3. Lanjut ke [Cara Menjalankan](#-cara-menjalankan).
 
 ### Opsi B — Jalankan dari source (untuk developer)
@@ -89,7 +89,7 @@ Bot butuh server API yang kompatibel dengan OpenAI. Contoh: **9Router** di `http
 ## ▶️ Cara Menjalankan
 
 1. **Buka MT5** → pastikan sudah login & AutoTrading **hijau**.
-2. **Jalankan `AI Trading Bot.exe`**.
+2. **Jalankan `Automation Trading.exe`**.
 3. Di tab **🔌 Koneksi**: isi/verifikasi *MT5 Terminal Path*, *9Router URL*, *API Key*, *Model*.
 4. Klik tombol test satu per satu (pastikan semua sukses):
    - **🔌 Test 9Router** → koneksi ke server AI OK
@@ -329,7 +329,7 @@ AI memilih pendekatan sesuai kondisi pasar dari beberapa kerangka:
 
 ```
 mt5-ai-trading-bot/
-├── AI Trading Bot.exe        # Aplikasi jadi (double-click untuk jalan)
+├── Automation Trading.exe    # Aplikasi jadi (double-click untuk jalan)
 ├── gui_app.py                # GUI utama (semua kontrol)
 ├── config.yaml               # Semua setting (diedit lewat GUI)
 ├── config.yaml.bak           # Backup config otomatis

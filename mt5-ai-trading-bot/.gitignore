@@ -18,7 +18,7 @@ _scratch/
 
 # Build artifacts
 build/
-"AI Trading Bot.exe"
+"Automation Trading.exe"
 *.exe
 build_log*.txt
 _selftest.txt

@@ -346,7 +346,7 @@ class TelegramNotifier:
     # teks balasan
     # ---------------------------------------------------------------
     def _menu_text(self, account):
-        return (f"🤖 <b>MT5 AI Trading Bot</b>\n"
+        return (f"🤖 <b>MT5 Automation Trading</b>\n"
                 f"Akun: {account.get('login')} ({account.get('company', '')})\n\n"
                 f"Pilih menu di bawah 👇\n"
                 f"(atau ketik perintah: /status /pnl /posisi /sinyal /setting /bantuan /stop)")

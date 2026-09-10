@@ -21,7 +21,7 @@ r.update()
 
 # 1. tema
 check(r.cget('bg') == '#0B0F14', f'bg dark theme = {r.cget("bg")}')
-check(r.title().startswith('AI Trading Bot'), f'title = {r.title()}')
+check(r.title().startswith('Automation Trading'), f'title = {r.title()}')
 
 # 2. tombol toolbar + style
 check(gui.btn_start.cget('style') == 'Start.TButton', 'btn_start style Start')
