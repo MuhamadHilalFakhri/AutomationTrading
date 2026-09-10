@@ -128,7 +128,10 @@ DEFAULT_CONFIG = {
 
 ALL_PAIRS = ['XAUUSD', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'NAS100.r']
 ALL_TFS = ['M1', 'M5', 'M15', 'M30', 'H1', 'H4', 'D1']
-MODELS = ['COMBO', 'h1', 'gpt-4o', 'claude-sonnet-4', 'claude-3.5-haiku', 'deepseek-v3']
+# Model manual/alias yang tetap tersedia walaupun 9Router tidak menampilkannya
+# di GET /models (contoh: tunnel membutuhkan credential provider tertentu).
+MODELS = ['COMBO', 'h1', 'zr', 'tunnel', 'gpt-4o', 'claude-sonnet-4',
+          'claude-3.5-haiku', 'deepseek-v3']
 STRATEGIES = ['adaptive', 'scalping', 'snd', 'trend', 'custom']
 
 
@@ -1247,6 +1250,7 @@ class BotGUI:
         base = str(self._live_value(['provider', 'base_url'])).rstrip('/')
         current_env = str(self._live_value(['provider', 'api_key_env']))
         initial_key = str(self._live_value(['provider', 'api_key']))
+        current_model = str(self._live_value(['provider', 'model']) or '').strip()
 
         def run():
             key = initial_key
@@ -1296,10 +1300,13 @@ class BotGUI:
                 if ids:
                     shown = ', '.join(ids[:8]) + ('…' if len(ids) > 8 else '')
                     self._log(f'   Model: {shown}\n')
-                    # isi otomatis dropdown "Model AI" (pertahankan COMBO/h1 jika ada)
+                    # Isi otomatis dropdown "Model AI".
+                    # Alias manual tetap dipertahankan walau tidak muncul di
+                    # GET /models (contoh tunnel; validasi dilakukan saat run).
+                    current_model = str(self._live_value(['provider', 'model']) or '').strip()
                     merged = list(ids)
-                    for keep in ('COMBO', 'h1'):
-                        if keep not in merged:
+                    for keep in ('COMBO', 'h1', 'zr', 'tunnel', current_model):
+                        if keep and keep not in merged:
                             merged.insert(0, keep)
                     merged = merged[:40]
 

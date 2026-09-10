@@ -151,6 +151,9 @@ class BotEngine:
     # -------------------------------------------------------------
     def run_once(self, symbol: str = None) -> list[dict]:
         """Single scan + decisions. Returns list of actions taken."""
+        # Catat waktu di awal. Jika fetch/AI gagal sebelum fungsi selesai,
+        # loop tetap menunggu interval berikutnya (tidak retry tiap 1 detik).
+        self._last_scan = time.time()
         # hot-reload config: perubahan dari GUI 'Simpan' langsung apply
         # tanpa restart (mt5.symbols, active_pairs, risk, dsb)
         try:
@@ -340,6 +343,21 @@ class BotEngine:
             return None
         return self._handle_decision(symbol, data, decision)
 
+    @staticmethod
+    def _account_type(account: dict) -> str:
+        """Return the MT5 account margin type for the AI context.
+
+        ``account_info().trade_mode`` is the account environment
+        (demo/contest/real: 0/1/2), while ``margin_mode`` is the account
+        position model (netting/exchange/hedging: 0/1/2).
+        """
+        margin_mode = account.get('margin_mode')
+        try:
+            return {0: 'netting', 1: 'exchange', 2: 'hedging'}.get(
+                int(margin_mode), 'unknown')
+        except (TypeError, ValueError):
+            return 'unknown'
+
     # -------------------------------------------------------------
     def _fetch_symbol_data(self, symbol: str) -> dict | None:
         """Fetch semua data MT5 untuk 1 symbol (MAIN THREAD ONLY — MT5 not thread-safe)."""
@@ -402,7 +420,9 @@ class BotEngine:
             "balance": acct.get('balance', 0),
             "equity": acct.get('equity', 0),
             "currency": acct.get('currency', 'USD'),
-            "account_type": ["netting", "hedging"][acct.get('trade_mode', 0)],
+            # account_info.trade_mode adalah DEMO/CONTEST/REAL;
+            # tipe akun netting/hedging berasal dari margin_mode.
+            "account_type": self._account_type(acct),
             "spread_points": si.get('spread_points', 0) if si else 0,
             "atr_points": atr / (si.get('point', 0.00001) or 0.00001) if si and atr > 0 else 0,
             "open_positions": open_pos,

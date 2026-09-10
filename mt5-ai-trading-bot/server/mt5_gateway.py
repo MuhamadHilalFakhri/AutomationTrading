@@ -128,7 +128,12 @@ class MT5Gateway:
             "free_margin": info.margin_free,
             "currency": info.currency,
             "leverage": info.leverage,
-            "trade_mode": info.trade_mode,   # 0=netting,1=hedging,2=... check
+            # trade_mode = DEMO/CONTEST/REAL, bukan netting/hedging.
+            # margin_mode = NETTING/EXCHANGE/HEDGING dan dipakai engine
+            # untuk menjelaskan tipe akun ke AI.
+            "trade_mode": info.trade_mode,
+            "margin_mode": getattr(info, 'margin_mode', None),
+            "trade_allowed": getattr(info, 'trade_allowed', False),
             "name": info.name,
         }
 
